@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Attunify supervision schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--paper:#F3F5F4;--surface:#FFFFFF;--sunk:#E9EDEB;--ink:#1B2A31;--muted:#58676E;--line:#D5DCD9;--brand:#23525A;--brand-ink:#FFFFFF;
+--c-weekly:#2E6BA3;--c-makeup:#B27A22;--c-sup:#7A4893;--c-oh:#2C8560;--warn:#8A5A00;--warn-bg:#FFF3D6;
+font-family:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#141B1E;--surface:#1C2528;--sunk:#232E32;--ink:#E4ECEA;--muted:#98A8AD;--line:#33434A;--brand:#6FB3BC;--brand-ink:#0F1A1C;--c-weekly:#6AA6DD;--c-makeup:#E0AA55;--c-sup:#B990D0;--c-oh:#62C196;--warn:#F1C46B;--warn-bg:#3A2F14}}
+:root[data-theme="dark"]{--paper:#141B1E;--surface:#1C2528;--sunk:#232E32;--ink:#E4ECEA;--muted:#98A8AD;--line:#33434A;--brand:#6FB3BC;--brand-ink:#0F1A1C;--c-weekly:#6AA6DD;--c-makeup:#E0AA55;--c-sup:#B990D0;--c-oh:#62C196;--warn:#F1C46B;--warn-bg:#3A2F14}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);font-size:15px;line-height:1.5}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+main{max-width:860px;margin:0 auto;padding:28px clamp(14px,4vw,32px) 60px}
+h1{font-size:26px;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:18px;margin:26px 0 8px}
+.lede{color:var(--muted);margin:0 0 18px;max-width:70ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:12px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted);max-width:340px}
+select{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+a.btn{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-weight:600;color:var(--ink);background:var(--surface)}
+a.btn:hover{border-color:var(--muted)}
+a.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.t-weekly{color:var(--c-weekly)}.t-makeup{color:var(--c-makeup)}.t-sup{color:var(--c-sup)}.t-oh{color:var(--c-oh)}
+.title{font-weight:700;margin-top:3px}.detail{font-size:14px;color:var(--muted)}
+.flag{display:inline-block;font-size:12px;font-weight:600;padding:1px 7px;border-radius:4px;background:var(--warn-bg);color:var(--warn)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+td{padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td:last-child{white-space:normal}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:6px;background:var(--surface)}
+.small{font-size:13px;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:7px 14px;font-weight:600;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+button.btn{border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-weight:600;background:var(--surface);cursor:pointer}
+button.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px}
+.calhead b{font-size:18px}
+.cal{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.cal .dh{font-size:12px;font-weight:600;color:var(--muted);padding:6px;border-bottom:1px solid var(--line);text-align:center}
+.cal .day{min-height:92px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px;display:flex;flex-direction:column;gap:3px}
+.cal .day:nth-child(5n){border-right:0}
+.cal .day.out{background:var(--sunk)}
+.cal .dn{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ev{display:block;width:100%;text-align:left;border:0;border-left:3px solid currentColor;border-radius:3px;padding:3px 5px;font-size:12px;line-height:1.3;cursor:pointer;background:color-mix(in srgb,currentColor 12%,var(--surface))}
+.ev b{color:var(--ink);font-weight:700}
+.ev span{color:var(--ink)}
+.detail-pop{margin-top:10px}
+@media (max-width:600px){.cal .day{min-height:70px}.ev span{display:none}}
+.picks{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
+.pick{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:6px;padding:7px 10px;cursor:pointer;background:var(--surface);font-size:14px}
+.pick input{width:16px;height:16px;margin:0;accent-color:var(--brand)}
+.pick .n{color:var(--muted);font-variant-numeric:tabular-nums}
+.addcal h3{font-size:16px;margin:0 0 2px}
+.status{margin-top:10px;padding:8px 12px;border-radius:6px;font-size:14px;font-weight:600}
+.status.ok{background:color-mix(in srgb,var(--c-oh) 14%,var(--surface));color:var(--ink)}
+.status.warn{background:var(--warn-bg);color:var(--warn)}
+.status a{color:inherit;font-weight:700}
+details.how{border-top:1px solid var(--line);padding:8px 0}
+details.how:last-of-type{border-bottom:1px solid var(--line)}
+details.how summary{cursor:pointer;font-weight:600;padding:2px 0}
+details.how ol{margin:6px 0 4px;padding-left:22px}
+details.how li{margin:3px 0}
+.steps-h{font-weight:700;margin:16px 0 6px}
+kbd{font:inherit;font-weight:700}
+
+/* invoice */
+body{color:var(--ink)}
+.viewtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 18px}
+.viewtabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;font-weight:600;color:var(--muted);cursor:pointer}
+.viewtabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brand)}
+.muted{color:var(--muted)}
+.invhead{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:14px}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:14px}
+.totals>div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:6px;background:var(--sunk)}
+.totals span{font-size:13px;color:var(--muted);font-weight:600}
+.totals b{font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums}
+.totals .mine{background:color-mix(in srgb,var(--brand) 13%,var(--surface))}
+.totals em{font-style:normal;font-size:13px;color:var(--muted)}
+.howto{margin:0 0 18px;padding-left:22px;color:var(--muted);font-size:14px}
+.howto li{margin:3px 0}.howto b{color:var(--ink)}
+.igroup{margin-bottom:18px}
+.ig-head h3{font-size:16px;margin:0}
+.ig-head p{margin:2px 0 8px;font-size:13px;color:var(--muted)}
+.ig-cols,.iline{display:grid;grid-template-columns:minmax(0,1fr) 70px 150px 90px;gap:6px 12px;align-items:center}
+.ig-cols{font-size:12px;font-weight:600;color:var(--muted);padding:0 12px 4px}
+.ig-cols span:nth-child(n+2){text-align:center}.ig-cols span:last-child{text-align:right}
+.iline{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:6px}
+.iline.chg{border-color:var(--warn);box-shadow:inset 3px 0 0 var(--warn)}
+.il-main{min-width:0}
+.il-name{font-weight:700}
+.il-rate{font-size:13px;color:var(--muted)}
+.il-help summary{font-size:13px;color:var(--brand);font-weight:600;cursor:pointer;margin-top:2px}
+.il-help p{font-size:13px;margin:4px 0;max-width:62ch}
+.il-dates{color:var(--muted)}
+.il-sched{text-align:center;font-variant-numeric:tabular-nums}
+.il-sched b{font-size:17px}
+.lbl{display:none;font-size:12px;color:var(--muted);font-weight:600}
+.il-qty{display:flex;justify-content:center}
+.stepper{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.stepper button{border:0;background:var(--sunk);width:36px;font-size:18px;font-weight:700;cursor:pointer;color:var(--ink)}
+.stepper button:hover{background:color-mix(in srgb,var(--brand) 16%,var(--sunk))}
+.stepper input{width:56px;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);text-align:center;font:inherit;font-weight:700;font-size:16px;padding:7px 2px;background:var(--surface);color:var(--ink);-moz-appearance:textfield}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.il-amt{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.il-note{grid-column:1/-1;display:flex;flex-direction:column;gap:4px;padding-top:6px;border-top:1px dashed var(--line)}
+.il-note label{font-size:13px;font-weight:600;color:var(--warn)}
+.il-note input[type=text],.f2 input,.f2 textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px;width:100%}
+.il-note label.chk{display:flex;gap:8px;align-items:flex-start;color:var(--ink);font-weight:600}
+.il-note label.chk input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--brand)}
+.igrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.f2{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted);min-width:0}
+.f2.wide{grid-column:1/-1}
+.f2 .static{font-weight:400;color:var(--ink);font-size:15px;padding:6px 0}
+.status.need{background:var(--warn-bg);color:var(--ink);font-weight:400}
+.status.need b{color:var(--warn)}
+.status.need ul{margin:4px 0 0;padding-left:20px}
+.sendbox{margin-top:12px}
+.addr{font-weight:700;user-select:all}
+.btn.link{border:0;background:none;padding:0;color:var(--brand);text-decoration:underline;font-weight:600;cursor:pointer}
+.ocline{display:grid;grid-template-columns:minmax(0,1fr) 160px auto;gap:6px 12px;align-items:end;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:6px}
+.ocline label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted);min-width:0}
+.ocline input{font:inherit;font-weight:400;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px;width:100%}
+.ocline .btn.link{padding-bottom:9px}
+@media (max-width:640px){.ocline{grid-template-columns:1fr auto}.ocline label:first-child{grid-column:1/-1}}
+table.rt td{white-space:normal}
+@media (max-width:640px){
+ .ig-cols{display:none}
+ .iline{grid-template-columns:1fr auto;}
+ .il-main{grid-column:1/-1}
+ .il-sched{display:flex;gap:6px;align-items:baseline;justify-content:flex-start}
+ .il-qty{grid-column:1;justify-content:flex-start;align-items:center;gap:8px}
+ .il-amt{grid-column:2;grid-row:2/4;align-self:end}
+ .lbl{display:inline}
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Your schedule and invoices</h1>
+<div id="movebanner" class="status warn" hidden style="margin:8px 0 14px">This page has moved. Please use <a id="movelink" href="#" target="_blank" rel="noopener"></a> from now on. Downloads there work in any browser.</div>
+<p class="lede" id="updated"></p>
+<div class="panel"><label class="f">Your name<select id="who"><option value="">Choose your name</option></select></label></div>
+<div id="out"></div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+"use strict";
+const SNAP={"generatedAt":"2026-11-02T20:06:52.652Z","cycle":"2026-fall","instructors":[{"id":"jamie-knott","name":"Jamie Knott"},{"id":"sunny-cho","name":"Sunny Cho"},{"id":"san-juanita-guerra","name":"San Juanita Guerra"},{"id":"julia-sayles","name":"Julia Sayles"},{"id":"lauren-rabinovitz","name":"Lauren Rabinovitz"},{"id":"trista-vonada","name":"Trista Vonada"}],"assignments":{"jamie-knott":[{"key":"C1-sup1A","kind":"sup","type":"sup","label":"C1-sup1A, Mon 12pm ET / 9am PT","detail":"8 monthly sessions: Oct 19, Nov 16, Dec 14, Jan 18, Feb 22, Mar 22, Apr 19, May 17","ver":"10fbykk"},{"key":"C2-class1","kind":"weekly","type":"weekly","label":"C2-class1, Tue 12pm ET / 9am PT","detail":"16 weekly sessions, Tue, Oct 20 to Tue, Feb 23","ver":"9vv0nv"},{"key":"C1-sup4A","kind":"sup","type":"sup","label":"C1-sup4A, Mon 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 26, Nov 16, Dec 14, Jan 25, Feb 22, Mar 29, Apr 26, May 24","ver":"1paxewr"},{"key":"C1-sup4B","kind":"sup","type":"sup","label":"C1-sup4B, Fri 12pm ET / 9am PT","detail":"8 monthly sessions: Oct 30, Nov 20, Dec 18, Jan 29, Feb 26, Mar 26, Apr 30, May 28","ver":"q4br29"},{"key":"C1-sup1B","kind":"sup","type":"sup","label":"C1-sup1B, Fri 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 30, Nov 20, Dec 18, Jan 22, Feb 19, Mar 26, Apr 23, May 21","ver":"3g9367"},{"key":"MU:C2-class1","kind":"makeup","type":"makeup","label":"C2-class1 monthly makeups","detail":"Mon, Nov 2 4pm ET, Mon, Nov 30 4pm ET, Mon, Jan 4 4pm ET, Mon, Feb 1 4pm ET, Mon, Mar 1 4pm ET","ver":"p8z4py"},{"key":"COVER:C2-class10|W3","kind":"cover","type":"weekly","label":"Cover C2-class10 for Julia Sayles","detail":"Thu, Nov 5, 7pm ET / 4pm PT","ver":"s9p178"},{"key":"COVER:C2-class5|W5","kind":"cover","type":"weekly","label":"Cover C2-class5 for Sunny Cho","detail":"Wed, Nov 18, 12pm ET / 9am PT","ver":"1fkcpch"},{"key":"OH:2027-03","kind":"oh","type":"oh","label":"Office hours, Mar 2027","detail":"Fri, Mar 12, 12pm ET / 9am PT","ver":"1hr4c7h"}],"sunny-cho":[{"key":"C2-class5","kind":"weekly","type":"weekly","label":"C2-class5, Wed 12pm ET / 9am PT","detail":"16 weekly sessions, Wed, Oct 21 to Wed, Feb 24","ver":"kv1o33"},{"key":"C1-sup2A","kind":"sup","type":"sup","label":"C1-sup2A, Mon 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 26, Nov 30, Dec 14, Jan 25, Feb 22, Mar 29, Apr 26, May 24","ver":"1ssb2if"},{"key":"C1-sup5A","kind":"sup","type":"sup","label":"C1-sup5A, Mon 4pm ET / 1pm PT","detail":"8 monthly sessions: Oct 26, Nov 30, Dec 14, Jan 25, Feb 22, Mar 29, Apr 26, May 24","ver":"jlbji7"},{"key":"C1-sup2B","kind":"sup","type":"sup","label":"C1-sup2B, Fri 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 30, Dec 4, Dec 18, Jan 29, Feb 26, Mar 26, Apr 30, May 28","ver":"1j3plng"},{"key":"C1-sup5B","kind":"sup","type":"sup","label":"C1-sup5B, Fri 5pm ET / 2pm PT","detail":"8 monthly sessions: Oct 30, Dec 4, Dec 18, Jan 29, Feb 26, Mar 26, Apr 30, May 28","ver":"zqulm4"},{"key":"COVER:C2-class1|MU2026-10","kind":"cover","type":"makeup","label":"Cover C2-class1 for Jamie Knott","detail":"Mon, Nov 2, 4pm ET / 1pm PT","ver":"qbqatq"},{"key":"MU:C2-class5","kind":"makeup","type":"makeup","label":"C2-class5 monthly makeups","detail":"Thu, Nov 5 2pm ET, Thu, Dec 3 2pm ET, Thu, Jan 7 2pm ET, Thu, Feb 4 2pm ET, Thu, Mar 4 2pm ET","ver":"2d2gw9"},{"key":"OH:2027-01","kind":"oh","type":"oh","label":"Office hours, Jan 2027","detail":"Fri, Jan 15, 12pm ET / 9am PT","ver":"1q31f3i"},{"key":"OH:2027-02","kind":"oh","type":"oh","label":"Office hours, Feb 2027","detail":"Fri, Feb 12, 12pm ET / 9am PT","ver":"lfkn2k"}],"san-juanita-guerra":[{"key":"C2-class2","kind":"weekly","type":"weekly","label":"C2-class2, Tue 12pm ET / 9am PT","detail":"16 weekly sessions, Tue, Oct 20 to Tue, Feb 23","ver":"9vv0nv"},{"key":"C1-sup6A","kind":"sup","type":"sup","label":"C1-sup6A, Mon 12pm ET / 9am PT","detail":"8 monthly sessions: Oct 26, Nov 16, Dec 14, Jan 25, Feb 22, Mar 29, Apr 26, May 24","ver":"1itnvz7"},{"key":"C1-sup10A","kind":"sup","type":"sup","label":"C1-sup10A, Mon 5pm ET / 2pm PT","detail":"8 monthly sessions: Oct 26, Nov 16, Dec 14, Jan 25, Feb 22, Mar 29, Apr 26, May 24","ver":"15y2evf"},{"key":"C1-sup6B","kind":"sup","type":"sup","label":"C1-sup6B, Fri 12pm ET / 9am PT","detail":"8 monthly sessions: Oct 30, Nov 20, Dec 18, Jan 29, Feb 26, Mar 26, Apr 30, May 28","ver":"q4br29"},{"key":"C1-sup10B","kind":"sup","type":"sup","label":"C1-sup10B, Fri 5pm ET / 2pm PT","detail":"8 monthly sessions: Oct 30, Nov 20, Dec 18, Jan 29, Feb 19, Mar 26, Apr 30, May 28","ver":"1c74hsb"},{"key":"MU:C2-class2","kind":"makeup","type":"makeup","label":"C2-class2 monthly makeups","detail":"Thu, Nov 5 1pm ET, Thu, Dec 3 1pm ET, Thu, Jan 7 1pm ET, Thu, Feb 4 1pm ET, Thu, Mar 4 1pm ET","ver":"a7zl7o"},{"key":"OH:2026-12","kind":"oh","type":"oh","label":"Office hours, Dec 2026","detail":"Fri, Dec 11, 12pm ET / 9am PT","ver":"8bop2j"}],"julia-sayles":[{"key":"C1-sup3A","kind":"sup","type":"sup","label":"C1-sup3A, Mon 7pm ET / 4pm PT","detail":"8 monthly sessions: Oct 19, Nov 16, Dec 14, Jan 18, Feb 22, Mar 22, Apr 19, May 17","ver":"46vhfg"},{"key":"C2-class10","kind":"weekly","type":"weekly","label":"C2-class10, Thu 7pm ET / 4pm PT","detail":"16 weekly sessions, Thu, Oct 22 to Thu, Feb 25","ver":"rv7d7t"},{"key":"C1-sup3B","kind":"sup","type":"sup","label":"C1-sup3B, Fri 12pm ET / 9am PT","detail":"8 monthly sessions: Oct 23, Nov 20, Dec 18, Jan 22, Feb 19, Mar 26, Apr 23, May 21","ver":"75kva1"},{"key":"C1-sup12A","kind":"sup","type":"sup","label":"C1-sup12A, Mon 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 26, Nov 16, Dec 14, Jan 25, Feb 22, Mar 29, Apr 26, May 24","ver":"1paxewr"},{"key":"C1-sup12B","kind":"sup","type":"sup","label":"C1-sup12B, Fri 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 30, Nov 20, Dec 18, Jan 29, Feb 19, Mar 26, Apr 30, May 28","ver":"1vjzhtn"},{"key":"MU:C2-class10","kind":"makeup","type":"makeup","label":"C2-class10 monthly makeups","detail":"Mon, Nov 9 2pm ET, Mon, Dec 7 2pm ET, Mon, Jan 4 2pm ET, Mon, Feb 1 2pm ET, Mon, Mar 1 2pm ET","ver":"y69v8o"},{"key":"COVER:C2-class5|W4","kind":"cover","type":"weekly","label":"Cover C2-class5 for Sunny Cho","detail":"Wed, Nov 11, 12pm ET / 9am PT","ver":"1b191wq"},{"key":"OH:2026-11","kind":"oh","type":"oh","label":"Office hours, Nov 2026","detail":"Fri, Nov 13, 12pm ET / 9am PT","ver":"1cbuo18"},{"key":"COVER:C2-class7|W12","kind":"cover","type":"weekly","label":"Cover C2-class7 for Trista Vonada","detail":"Wed, Jan 27, 3pm ET / 12pm PT","ver":"dphxhw"},{"key":"OH:2027-05","kind":"oh","type":"oh","label":"Office hours, May 2027","detail":"Fri, May 14, 12pm ET / 9am PT","ver":"1cnpamp"}],"lauren-rabinovitz":[{"key":"C1-sup11A","kind":"sup","type":"sup","label":"C1-sup11A, Mon 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 19, Nov 16, Dec 14, Jan 18, Feb 22, Mar 22, Apr 19, May 17","ver":"16wlhi4"},{"key":"C1-sup11B","kind":"sup","type":"sup","label":"C1-sup11B, Fri 12pm ET / 9am PT","detail":"8 monthly sessions: Oct 23, Nov 20, Dec 18, Jan 22, Feb 19, Mar 26, Apr 23, May 21","ver":"75kva1"},{"key":"C1-sup9B","kind":"sup","type":"sup","label":"C1-sup9B, Fri 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 23, Nov 20, Dec 18, Jan 29, Feb 19, Mar 26, Apr 30, May 28","ver":"6pgqvx"},{"key":"C1-sup9A","kind":"sup","type":"sup","label":"C1-sup9A, Mon 12pm ET / 9am PT","detail":"8 monthly sessions: Oct 26, Nov 16, Dec 14, Jan 25, Feb 22, Mar 29, Apr 26, May 24","ver":"1itnvz7"}],"trista-vonada":[{"key":"OH:2026-10","kind":"oh","type":"oh","label":"Office hours, Oct 2026","detail":"Fri, Oct 16, 12pm ET / 9am PT","ver":"hy7e32"},{"key":"C1-sup8A","kind":"sup","type":"sup","label":"C1-sup8A, Mon 12pm ET / 9am PT","detail":"8 monthly sessions: Oct 19, Nov 16, Dec 14, Jan 18, Feb 22, Mar 22, Apr 19, May 17","ver":"10fbykk"},{"key":"C1-sup7A","kind":"sup","type":"sup","label":"C1-sup7A, Mon 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 19, Nov 16, Dec 14, Jan 18, Feb 22, Mar 22, Apr 19, May 17","ver":"16wlhi4"},{"key":"C2-class7","kind":"weekly","type":"weekly","label":"C2-class7, Wed 3pm ET / 12pm PT","detail":"16 weekly sessions, Wed, Oct 21 to Wed, Feb 24","ver":"1o3in4i"},{"key":"C1-sup8B","kind":"sup","type":"sup","label":"C1-sup8B, Fri 3pm ET / 12pm PT","detail":"8 monthly sessions: Oct 23, Nov 20, Dec 18, Jan 22, Feb 19, Mar 26, Apr 23, May 21","ver":"dmue7l"},{"key":"C1-sup7B","kind":"sup","type":"sup","label":"C1-sup7B, Fri 4:30pm ET / 1:30pm PT","detail":"8 monthly sessions: Oct 23, Nov 20, Dec 18, Jan 22, Feb 19, Mar 26, Apr 23, May 21","ver":"18fn441"},{"key":"MU:C2-class7","kind":"makeup","type":"makeup","label":"C2-class7 monthly makeups","detail":"Mon, Nov 9 12pm ET, Mon, Nov 30 12pm ET, Mon, Jan 4 12pm ET, Mon, Feb 1 12pm ET, Mon, Mar 1 12pm ET","ver":"e3jbeh"},{"key":"COVER:C2-class1|W7","kind":"cover","type":"weekly","label":"Cover C2-class1 for Jamie Knott","detail":"Tue, Dec 8, 12pm ET / 9am PT","ver":"1qizrf5"},{"key":"OH:2027-04","kind":"oh","type":"oh","label":"Office hours, Apr 2027","detail":"Fri, Apr 16, 12pm ET / 9am PT","ver":"hmr7ma"}]},"sessions":{"jamie-knott":[{"date":"2026-10-19","time":"12:00","type":"sup","unit":"C1-sup1A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-20","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 1","covering":"","coveredBy":""},{"date":"2026-10-26","time":"15:00","type":"sup","unit":"C1-sup4A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-27","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 2","covering":"","coveredBy":""},{"date":"2026-10-30","time":"12:00","type":"sup","unit":"C1-sup4B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-30","time":"15:00","type":"sup","unit":"C1-sup1B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-11-02","time":"16:00","type":"makeup","unit":"C2-class1","sub":"Makeup for Oct 2026","covering":"","coveredBy":"Sunny Cho"},{"date":"2026-11-03","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 3","covering":"","coveredBy":""},{"date":"2026-11-05","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 3","covering":"Julia Sayles","coveredBy":""},{"date":"2026-11-10","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 4","covering":"","coveredBy":""},{"date":"2026-11-16","time":"12:00","type":"sup","unit":"C1-sup1A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-16","time":"15:00","type":"sup","unit":"C1-sup4A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-17","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 5","covering":"","coveredBy":""},{"date":"2026-11-18","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 5","covering":"Sunny Cho","coveredBy":""},{"date":"2026-11-20","time":"12:00","type":"sup","unit":"C1-sup4B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-20","time":"15:00","type":"sup","unit":"C1-sup1B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-30","time":"16:00","type":"makeup","unit":"C2-class1","sub":"Makeup for Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-01","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 6","covering":"","coveredBy":""},{"date":"2026-12-08","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 7","covering":"","coveredBy":"Trista Vonada"},{"date":"2026-12-14","time":"12:00","type":"sup","unit":"C1-sup1A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-14","time":"15:00","type":"sup","unit":"C1-sup4A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-15","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 8","covering":"","coveredBy":""},{"date":"2026-12-18","time":"12:00","type":"sup","unit":"C1-sup4B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-18","time":"15:00","type":"sup","unit":"C1-sup1B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-04","time":"16:00","type":"makeup","unit":"C2-class1","sub":"Makeup for Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-05","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 9","covering":"","coveredBy":""},{"date":"2027-01-12","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 10","covering":"","coveredBy":""},{"date":"2027-01-18","time":"12:00","type":"sup","unit":"C1-sup1A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-19","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 11","covering":"","coveredBy":""},{"date":"2027-01-22","time":"15:00","type":"sup","unit":"C1-sup1B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-25","time":"15:00","type":"sup","unit":"C1-sup4A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-26","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 12","covering":"","coveredBy":""},{"date":"2027-01-29","time":"12:00","type":"sup","unit":"C1-sup4B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-01","time":"16:00","type":"makeup","unit":"C2-class1","sub":"Makeup for Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-02","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 13","covering":"","coveredBy":""},{"date":"2027-02-09","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 14","covering":"","coveredBy":""},{"date":"2027-02-16","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 15","covering":"","coveredBy":""},{"date":"2027-02-19","time":"15:00","type":"sup","unit":"C1-sup1B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"12:00","type":"sup","unit":"C1-sup1A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"15:00","type":"sup","unit":"C1-sup4A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-23","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 16","covering":"","coveredBy":""},{"date":"2027-02-26","time":"12:00","type":"sup","unit":"C1-sup4B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-03-01","time":"16:00","type":"makeup","unit":"C2-class1","sub":"Makeup for Feb 2027","covering":"","coveredBy":""},{"date":"2027-03-12","time":"12:00","type":"oh","unit":"Office hours","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-22","time":"12:00","type":"sup","unit":"C1-sup1A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"12:00","type":"sup","unit":"C1-sup4B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"15:00","type":"sup","unit":"C1-sup1B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-29","time":"15:00","type":"sup","unit":"C1-sup4A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-04-19","time":"12:00","type":"sup","unit":"C1-sup1A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-23","time":"15:00","type":"sup","unit":"C1-sup1B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-26","time":"15:00","type":"sup","unit":"C1-sup4A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-30","time":"12:00","type":"sup","unit":"C1-sup4B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-05-17","time":"12:00","type":"sup","unit":"C1-sup1A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-21","time":"15:00","type":"sup","unit":"C1-sup1B","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-24","time":"15:00","type":"sup","unit":"C1-sup4A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-28","time":"12:00","type":"sup","unit":"C1-sup4B","sub":"May 2027","covering":"","coveredBy":""}],"sunny-cho":[{"date":"2026-10-21","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 1","covering":"","coveredBy":""},{"date":"2026-10-26","time":"15:00","type":"sup","unit":"C1-sup2A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-26","time":"16:00","type":"sup","unit":"C1-sup5A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-28","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 2","covering":"","coveredBy":""},{"date":"2026-10-30","time":"15:00","type":"sup","unit":"C1-sup2B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-30","time":"17:00","type":"sup","unit":"C1-sup5B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-11-02","time":"16:00","type":"makeup","unit":"C2-class1","sub":"Makeup for Oct 2026","covering":"Jamie Knott","coveredBy":""},{"date":"2026-11-04","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 3","covering":"","coveredBy":""},{"date":"2026-11-05","time":"14:00","type":"makeup","unit":"C2-class5","sub":"Makeup for Oct 2026","covering":"","coveredBy":""},{"date":"2026-11-11","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 4","covering":"","coveredBy":"Julia Sayles"},{"date":"2026-11-18","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 5","covering":"","coveredBy":"Jamie Knott"},{"date":"2026-11-30","time":"15:00","type":"sup","unit":"C1-sup2A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-30","time":"16:00","type":"sup","unit":"C1-sup5A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-02","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 6","covering":"","coveredBy":""},{"date":"2026-12-03","time":"14:00","type":"makeup","unit":"C2-class5","sub":"Makeup for Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-04","time":"15:00","type":"sup","unit":"C1-sup2B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-04","time":"17:00","type":"sup","unit":"C1-sup5B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-09","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 7","covering":"","coveredBy":""},{"date":"2026-12-14","time":"15:00","type":"sup","unit":"C1-sup2A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-14","time":"16:00","type":"sup","unit":"C1-sup5A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-16","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 8","covering":"","coveredBy":""},{"date":"2026-12-18","time":"15:00","type":"sup","unit":"C1-sup2B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-18","time":"17:00","type":"sup","unit":"C1-sup5B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-06","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 9","covering":"","coveredBy":""},{"date":"2027-01-07","time":"14:00","type":"makeup","unit":"C2-class5","sub":"Makeup for Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-13","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 10","covering":"","coveredBy":""},{"date":"2027-01-15","time":"12:00","type":"oh","unit":"Office hours","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-20","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 11","covering":"","coveredBy":""},{"date":"2027-01-25","time":"15:00","type":"sup","unit":"C1-sup2A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-25","time":"16:00","type":"sup","unit":"C1-sup5A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-27","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 12","covering":"","coveredBy":""},{"date":"2027-01-29","time":"15:00","type":"sup","unit":"C1-sup2B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-29","time":"17:00","type":"sup","unit":"C1-sup5B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-03","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 13","covering":"","coveredBy":""},{"date":"2027-02-04","time":"14:00","type":"makeup","unit":"C2-class5","sub":"Makeup for Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-10","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 14","covering":"","coveredBy":""},{"date":"2027-02-12","time":"12:00","type":"oh","unit":"Office hours","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-17","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 15","covering":"","coveredBy":""},{"date":"2027-02-22","time":"15:00","type":"sup","unit":"C1-sup2A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"16:00","type":"sup","unit":"C1-sup5A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-24","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 16","covering":"","coveredBy":""},{"date":"2027-02-26","time":"15:00","type":"sup","unit":"C1-sup2B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-26","time":"17:00","type":"sup","unit":"C1-sup5B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-03-04","time":"14:00","type":"makeup","unit":"C2-class5","sub":"Makeup for Feb 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"15:00","type":"sup","unit":"C1-sup2B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"17:00","type":"sup","unit":"C1-sup5B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-29","time":"15:00","type":"sup","unit":"C1-sup2A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-29","time":"16:00","type":"sup","unit":"C1-sup5A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-04-26","time":"15:00","type":"sup","unit":"C1-sup2A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-26","time":"16:00","type":"sup","unit":"C1-sup5A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-30","time":"15:00","type":"sup","unit":"C1-sup2B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-30","time":"17:00","type":"sup","unit":"C1-sup5B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-05-24","time":"15:00","type":"sup","unit":"C1-sup2A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-24","time":"16:00","type":"sup","unit":"C1-sup5A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-28","time":"15:00","type":"sup","unit":"C1-sup2B","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-28","time":"17:00","type":"sup","unit":"C1-sup5B","sub":"May 2027","covering":"","coveredBy":""}],"san-juanita-guerra":[{"date":"2026-10-20","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 1","covering":"","coveredBy":""},{"date":"2026-10-26","time":"12:00","type":"sup","unit":"C1-sup6A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-26","time":"17:00","type":"sup","unit":"C1-sup10A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-27","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 2","covering":"","coveredBy":""},{"date":"2026-10-30","time":"12:00","type":"sup","unit":"C1-sup6B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-30","time":"17:00","type":"sup","unit":"C1-sup10B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-11-03","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 3","covering":"","coveredBy":""},{"date":"2026-11-05","time":"13:00","type":"makeup","unit":"C2-class2","sub":"Makeup for Oct 2026","covering":"","coveredBy":""},{"date":"2026-11-10","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 4","covering":"","coveredBy":""},{"date":"2026-11-16","time":"12:00","type":"sup","unit":"C1-sup6A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-16","time":"17:00","type":"sup","unit":"C1-sup10A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-17","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 5","covering":"","coveredBy":""},{"date":"2026-11-20","time":"12:00","type":"sup","unit":"C1-sup6B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-20","time":"17:00","type":"sup","unit":"C1-sup10B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-01","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 6","covering":"","coveredBy":""},{"date":"2026-12-03","time":"13:00","type":"makeup","unit":"C2-class2","sub":"Makeup for Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-08","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 7","covering":"","coveredBy":""},{"date":"2026-12-11","time":"12:00","type":"oh","unit":"Office hours","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-14","time":"12:00","type":"sup","unit":"C1-sup6A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-14","time":"17:00","type":"sup","unit":"C1-sup10A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-15","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 8","covering":"","coveredBy":""},{"date":"2026-12-18","time":"12:00","type":"sup","unit":"C1-sup6B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-18","time":"17:00","type":"sup","unit":"C1-sup10B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-05","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 9","covering":"","coveredBy":""},{"date":"2027-01-07","time":"13:00","type":"makeup","unit":"C2-class2","sub":"Makeup for Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-12","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 10","covering":"","coveredBy":""},{"date":"2027-01-19","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 11","covering":"","coveredBy":""},{"date":"2027-01-25","time":"12:00","type":"sup","unit":"C1-sup6A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-25","time":"17:00","type":"sup","unit":"C1-sup10A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-26","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 12","covering":"","coveredBy":""},{"date":"2027-01-29","time":"12:00","type":"sup","unit":"C1-sup6B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-29","time":"17:00","type":"sup","unit":"C1-sup10B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-02","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 13","covering":"","coveredBy":""},{"date":"2027-02-04","time":"13:00","type":"makeup","unit":"C2-class2","sub":"Makeup for Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-09","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 14","covering":"","coveredBy":""},{"date":"2027-02-16","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 15","covering":"","coveredBy":""},{"date":"2027-02-19","time":"17:00","type":"sup","unit":"C1-sup10B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"12:00","type":"sup","unit":"C1-sup6A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"17:00","type":"sup","unit":"C1-sup10A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-23","time":"12:00","type":"weekly","unit":"C2-class2","sub":"Week 16","covering":"","coveredBy":""},{"date":"2027-02-26","time":"12:00","type":"sup","unit":"C1-sup6B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-03-04","time":"13:00","type":"makeup","unit":"C2-class2","sub":"Makeup for Feb 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"12:00","type":"sup","unit":"C1-sup6B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"17:00","type":"sup","unit":"C1-sup10B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-29","time":"12:00","type":"sup","unit":"C1-sup6A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-29","time":"17:00","type":"sup","unit":"C1-sup10A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-04-26","time":"12:00","type":"sup","unit":"C1-sup6A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-26","time":"17:00","type":"sup","unit":"C1-sup10A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-30","time":"12:00","type":"sup","unit":"C1-sup6B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-30","time":"17:00","type":"sup","unit":"C1-sup10B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-05-24","time":"12:00","type":"sup","unit":"C1-sup6A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-24","time":"17:00","type":"sup","unit":"C1-sup10A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-28","time":"12:00","type":"sup","unit":"C1-sup6B","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-28","time":"17:00","type":"sup","unit":"C1-sup10B","sub":"May 2027","covering":"","coveredBy":""}],"julia-sayles":[{"date":"2026-10-19","time":"19:00","type":"sup","unit":"C1-sup3A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-22","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 1","covering":"","coveredBy":""},{"date":"2026-10-23","time":"12:00","type":"sup","unit":"C1-sup3B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-26","time":"15:00","type":"sup","unit":"C1-sup12A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-29","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 2","covering":"","coveredBy":""},{"date":"2026-10-30","time":"15:00","type":"sup","unit":"C1-sup12B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-11-05","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 3","covering":"","coveredBy":"Jamie Knott"},{"date":"2026-11-09","time":"14:00","type":"makeup","unit":"C2-class10","sub":"Makeup for Oct 2026","covering":"","coveredBy":""},{"date":"2026-11-11","time":"12:00","type":"weekly","unit":"C2-class5","sub":"Week 4","covering":"Sunny Cho","coveredBy":""},{"date":"2026-11-12","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 4","covering":"","coveredBy":""},{"date":"2026-11-13","time":"12:00","type":"oh","unit":"Office hours","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-16","time":"15:00","type":"sup","unit":"C1-sup12A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-16","time":"19:00","type":"sup","unit":"C1-sup3A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-19","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 5","covering":"","coveredBy":""},{"date":"2026-11-20","time":"12:00","type":"sup","unit":"C1-sup3B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-20","time":"15:00","type":"sup","unit":"C1-sup12B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-03","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 6","covering":"","coveredBy":""},{"date":"2026-12-07","time":"14:00","type":"makeup","unit":"C2-class10","sub":"Makeup for Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-10","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 7","covering":"","coveredBy":""},{"date":"2026-12-14","time":"15:00","type":"sup","unit":"C1-sup12A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-14","time":"19:00","type":"sup","unit":"C1-sup3A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-17","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 8","covering":"","coveredBy":""},{"date":"2026-12-18","time":"12:00","type":"sup","unit":"C1-sup3B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-18","time":"15:00","type":"sup","unit":"C1-sup12B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-04","time":"14:00","type":"makeup","unit":"C2-class10","sub":"Makeup for Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-07","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 9","covering":"","coveredBy":""},{"date":"2027-01-14","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 10","covering":"","coveredBy":""},{"date":"2027-01-18","time":"19:00","type":"sup","unit":"C1-sup3A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-21","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 11","covering":"","coveredBy":""},{"date":"2027-01-22","time":"12:00","type":"sup","unit":"C1-sup3B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-25","time":"15:00","type":"sup","unit":"C1-sup12A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-27","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 12","covering":"Trista Vonada","coveredBy":""},{"date":"2027-01-28","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 12","covering":"","coveredBy":""},{"date":"2027-01-29","time":"15:00","type":"sup","unit":"C1-sup12B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-01","time":"14:00","type":"makeup","unit":"C2-class10","sub":"Makeup for Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-04","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 13","covering":"","coveredBy":""},{"date":"2027-02-11","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 14","covering":"","coveredBy":""},{"date":"2027-02-18","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 15","covering":"","coveredBy":""},{"date":"2027-02-19","time":"12:00","type":"sup","unit":"C1-sup3B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-19","time":"15:00","type":"sup","unit":"C1-sup12B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"15:00","type":"sup","unit":"C1-sup12A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"19:00","type":"sup","unit":"C1-sup3A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-25","time":"19:00","type":"weekly","unit":"C2-class10","sub":"Week 16","covering":"","coveredBy":""},{"date":"2027-03-01","time":"14:00","type":"makeup","unit":"C2-class10","sub":"Makeup for Feb 2027","covering":"","coveredBy":""},{"date":"2027-03-22","time":"19:00","type":"sup","unit":"C1-sup3A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"12:00","type":"sup","unit":"C1-sup3B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"15:00","type":"sup","unit":"C1-sup12B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-29","time":"15:00","type":"sup","unit":"C1-sup12A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-04-19","time":"19:00","type":"sup","unit":"C1-sup3A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-23","time":"12:00","type":"sup","unit":"C1-sup3B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-26","time":"15:00","type":"sup","unit":"C1-sup12A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-30","time":"15:00","type":"sup","unit":"C1-sup12B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-05-14","time":"12:00","type":"oh","unit":"Office hours","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-17","time":"19:00","type":"sup","unit":"C1-sup3A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-21","time":"12:00","type":"sup","unit":"C1-sup3B","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-24","time":"15:00","type":"sup","unit":"C1-sup12A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-28","time":"15:00","type":"sup","unit":"C1-sup12B","sub":"May 2027","covering":"","coveredBy":""}],"lauren-rabinovitz":[{"date":"2026-10-19","time":"15:00","type":"sup","unit":"C1-sup11A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-23","time":"12:00","type":"sup","unit":"C1-sup11B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-23","time":"15:00","type":"sup","unit":"C1-sup9B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-26","time":"12:00","type":"sup","unit":"C1-sup9A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-11-16","time":"12:00","type":"sup","unit":"C1-sup9A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-16","time":"15:00","type":"sup","unit":"C1-sup11A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-20","time":"12:00","type":"sup","unit":"C1-sup11B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-20","time":"15:00","type":"sup","unit":"C1-sup9B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-14","time":"12:00","type":"sup","unit":"C1-sup9A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-14","time":"15:00","type":"sup","unit":"C1-sup11A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-18","time":"12:00","type":"sup","unit":"C1-sup11B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-18","time":"15:00","type":"sup","unit":"C1-sup9B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-18","time":"15:00","type":"sup","unit":"C1-sup11A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-22","time":"12:00","type":"sup","unit":"C1-sup11B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-25","time":"12:00","type":"sup","unit":"C1-sup9A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-29","time":"15:00","type":"sup","unit":"C1-sup9B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-19","time":"12:00","type":"sup","unit":"C1-sup11B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-19","time":"15:00","type":"sup","unit":"C1-sup9B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"12:00","type":"sup","unit":"C1-sup9A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"15:00","type":"sup","unit":"C1-sup11A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-03-22","time":"15:00","type":"sup","unit":"C1-sup11A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"12:00","type":"sup","unit":"C1-sup11B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"15:00","type":"sup","unit":"C1-sup9B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-29","time":"12:00","type":"sup","unit":"C1-sup9A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-04-19","time":"15:00","type":"sup","unit":"C1-sup11A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-23","time":"12:00","type":"sup","unit":"C1-sup11B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-26","time":"12:00","type":"sup","unit":"C1-sup9A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-30","time":"15:00","type":"sup","unit":"C1-sup9B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-05-17","time":"15:00","type":"sup","unit":"C1-sup11A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-21","time":"12:00","type":"sup","unit":"C1-sup11B","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-24","time":"12:00","type":"sup","unit":"C1-sup9A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-28","time":"15:00","type":"sup","unit":"C1-sup9B","sub":"May 2027","covering":"","coveredBy":""}],"trista-vonada":[{"date":"2026-10-16","time":"12:00","type":"oh","unit":"Office hours","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-19","time":"12:00","type":"sup","unit":"C1-sup8A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-19","time":"15:00","type":"sup","unit":"C1-sup7A","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-21","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 1","covering":"","coveredBy":""},{"date":"2026-10-23","time":"15:00","type":"sup","unit":"C1-sup8B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-23","time":"16:30","type":"sup","unit":"C1-sup7B","sub":"Oct 2026","covering":"","coveredBy":""},{"date":"2026-10-28","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 2","covering":"","coveredBy":""},{"date":"2026-11-04","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 3","covering":"","coveredBy":""},{"date":"2026-11-09","time":"12:00","type":"makeup","unit":"C2-class7","sub":"Makeup for Oct 2026","covering":"","coveredBy":""},{"date":"2026-11-11","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 4","covering":"","coveredBy":""},{"date":"2026-11-16","time":"12:00","type":"sup","unit":"C1-sup8A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-16","time":"15:00","type":"sup","unit":"C1-sup7A","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-18","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 5","covering":"","coveredBy":""},{"date":"2026-11-20","time":"15:00","type":"sup","unit":"C1-sup8B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-20","time":"16:30","type":"sup","unit":"C1-sup7B","sub":"Nov 2026","covering":"","coveredBy":""},{"date":"2026-11-30","time":"12:00","type":"makeup","unit":"C2-class7","sub":"Makeup for Nov 2026","covering":"","coveredBy":""},{"date":"2026-12-02","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 6","covering":"","coveredBy":""},{"date":"2026-12-08","time":"12:00","type":"weekly","unit":"C2-class1","sub":"Week 7","covering":"Jamie Knott","coveredBy":""},{"date":"2026-12-09","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 7","covering":"","coveredBy":""},{"date":"2026-12-14","time":"12:00","type":"sup","unit":"C1-sup8A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-14","time":"15:00","type":"sup","unit":"C1-sup7A","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-16","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 8","covering":"","coveredBy":""},{"date":"2026-12-18","time":"15:00","type":"sup","unit":"C1-sup8B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2026-12-18","time":"16:30","type":"sup","unit":"C1-sup7B","sub":"Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-04","time":"12:00","type":"makeup","unit":"C2-class7","sub":"Makeup for Dec 2026","covering":"","coveredBy":""},{"date":"2027-01-06","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 9","covering":"","coveredBy":""},{"date":"2027-01-13","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 10","covering":"","coveredBy":""},{"date":"2027-01-18","time":"12:00","type":"sup","unit":"C1-sup8A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-18","time":"15:00","type":"sup","unit":"C1-sup7A","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-20","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 11","covering":"","coveredBy":""},{"date":"2027-01-22","time":"15:00","type":"sup","unit":"C1-sup8B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-22","time":"16:30","type":"sup","unit":"C1-sup7B","sub":"Jan 2027","covering":"","coveredBy":""},{"date":"2027-01-27","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 12","covering":"","coveredBy":"Julia Sayles"},{"date":"2027-02-01","time":"12:00","type":"makeup","unit":"C2-class7","sub":"Makeup for Jan 2027","covering":"","coveredBy":""},{"date":"2027-02-03","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 13","covering":"","coveredBy":""},{"date":"2027-02-10","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 14","covering":"","coveredBy":""},{"date":"2027-02-17","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 15","covering":"","coveredBy":""},{"date":"2027-02-19","time":"15:00","type":"sup","unit":"C1-sup8B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-19","time":"16:30","type":"sup","unit":"C1-sup7B","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"12:00","type":"sup","unit":"C1-sup8A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-22","time":"15:00","type":"sup","unit":"C1-sup7A","sub":"Feb 2027","covering":"","coveredBy":""},{"date":"2027-02-24","time":"15:00","type":"weekly","unit":"C2-class7","sub":"Week 16","covering":"","coveredBy":""},{"date":"2027-03-01","time":"12:00","type":"makeup","unit":"C2-class7","sub":"Makeup for Feb 2027","covering":"","coveredBy":""},{"date":"2027-03-22","time":"12:00","type":"sup","unit":"C1-sup8A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-22","time":"15:00","type":"sup","unit":"C1-sup7A","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"15:00","type":"sup","unit":"C1-sup8B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-03-26","time":"16:30","type":"sup","unit":"C1-sup7B","sub":"Mar 2027","covering":"","coveredBy":""},{"date":"2027-04-16","time":"12:00","type":"oh","unit":"Office hours","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-19","time":"12:00","type":"sup","unit":"C1-sup8A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-19","time":"15:00","type":"sup","unit":"C1-sup7A","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-23","time":"15:00","type":"sup","unit":"C1-sup8B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-04-23","time":"16:30","type":"sup","unit":"C1-sup7B","sub":"Apr 2027","covering":"","coveredBy":""},{"date":"2027-05-17","time":"12:00","type":"sup","unit":"C1-sup8A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-17","time":"15:00","type":"sup","unit":"C1-sup7A","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-21","time":"15:00","type":"sup","unit":"C1-sup8B","sub":"May 2027","covering":"","coveredBy":""},{"date":"2027-05-21","time":"16:30","type":"sup","unit":"C1-sup7B","sub":"May 2027","covering":"","coveredBy":""}]},"rates":{"weekly":{"hrs":2.5,"rate":150},"sup":{"hrs":1,"rate":150},"makeup":{"hrs":1,"rate":150},"oh":{"hrs":1,"rate":150},"team":{"hrs":1,"rate":150},"cover":{"hrs":2.5,"rate":150},"missed":{"hrs":-2.5,"rate":150},"supCover":{"hrs":1,"rate":150},"supMissed":{"hrs":-1,"rate":150},"atrisk":{"hrs":0.25,"rate":200},"ext":{"hrs":1,"rate":150}},"teamPerMonth":2};
+const FORM_URL="";
+const CONTACT="programs@attunify.co";
+const TYPES={weekly:"Weekly supervision",makeup:"Monthly makeup",sup:"Monthly supervision",oh:"Office hours"};
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],WD=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const pd=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d));};
+const dl=s=>{const d=pd(s);return WD[d.getUTCDay()]+", "+MON[d.getUTCMonth()]+" "+d.getUTCDate();};
+const ml=m=>{const[y,x]=m.split("-");return MON[+x-1]+" "+y;};
+const tl=t=>{let[h,mi]=t.split(":").map(Number);return (h%12||12)+(mi?":"+String(mi).padStart(2,"0"):"")+(h>=12?"pm":"am");};
+const pt=t=>{let[h,mi]=t.split(":").map(Number);return String((h-3+24)%24)+":"+String(mi).padStart(2,"0");};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hsh=t=>{let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))>>>0;return h.toString(36);};
+function replyLink(name,key,label,ver,reply){
+  if(FORM_URL){
+    const q=[["prefill_Instructor",name],["prefill_Assignment Key",key],["prefill_Assignment",label],["prefill_Version",ver],["prefill_Reply",reply],["hide_Assignment Key","true"],["hide_Version","true"]]
+      .map(([k,v])=>encodeURIComponent(k)+"="+encodeURIComponent(v)).join("&");
+    return FORM_URL+(FORM_URL.includes("?")?"&":"?")+q;
+  }
+  const body=`Instructor: ${name}\nAssignment: ${label}\nReply: ${reply}\nNote: \n\n(ref ${key} / ${ver})`;
+  return `mailto:${CONTACT}?subject=${encodeURIComponent("Schedule reply: "+label)}&body=${encodeURIComponent(body)}`;
+}
+const DUR={weekly:90,makeup:60,sup:60,oh:60};
+const pad=n=>String(n).padStart(2,"0");
+function endOf(x){let[h,mi]=x.time.split(":").map(Number);const t=h*60+mi+(DUR[x.type]||60);return pad(Math.floor(t/60))+pad(t%60)+"00";}
+const stamp=x=>x.date.replace(/-/g,"")+"T"+x.time.replace(":","")+"00";
+const titleOf=x=>`Attunify ${TYPES[x.type]}: ${x.unit}`+(x.covering?` (covering for ${x.covering})`:"");
+const descOf=x=>`${x.unit} ${x.sub}. ${tl(x.time)} ET / ${tl(pt(x.time))} PT.`+(x.covering?` Covering for ${x.covering}.`:"")+` Zoom link to follow. Questions: ${CONTACT}`;
+function gcal(x){return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(titleOf(x))+"&dates="+stamp(x)+"/"+x.date.replace(/-/g,"")+"T"+endOf(x)+"&ctz=America/New_York&details="+encodeURIComponent(descOf(x));}
+const icsEsc=t=>String(t).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n");
+function ics(list,who){
+  const now=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
+  const tz=["BEGIN:VTIMEZONE","TZID:America/New_York","BEGIN:DAYLIGHT","TZOFFSETFROM:-0500","TZOFFSETTO:-0400","TZNAME:EDT","DTSTART:19700308T020000","RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU","END:DAYLIGHT","BEGIN:STANDARD","TZOFFSETFROM:-0400","TZOFFSETTO:-0500","TZNAME:EST","DTSTART:19701101T020000","RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU","END:STANDARD","END:VTIMEZONE"];
+  const ev=list.map(x=>["BEGIN:VEVENT",`UID:attunify-${who}-${x.unit}-${x.date}-${x.time.replace(":","")}@attunify.co`,`DTSTAMP:${now}`,`DTSTART;TZID=America/New_York:${stamp(x)}`,`DTEND;TZID=America/New_York:${x.date.replace(/-/g,"")}T${endOf(x)}`,`SUMMARY:${icsEsc(titleOf(x))}`,`DESCRIPTION:${icsEsc(descOf(x))}`,"END:VEVENT"].join("\r\n"));
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Attunify//Supervision schedule//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",...tz,...ev,"END:VCALENDAR"].join("\r\n");
+}
+let VIEW="calendar",MONTH="",SEL=null,DL=null;
+const HOME_URL="https://attunify.github.io/instructor-schedule/";
+const HOSTED=/\.github\.io$/.test(location.hostname);
+if(!HOSTED){const b=document.getElementById("movebanner"),l=document.getElementById("movelink");if(b&&l){l.href=HOME_URL;l.textContent=HOME_URL;b.hidden=false;}}
+function blobSave(name,data,type){try{const u=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement("a");a.href=u;a.download=name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return true;}catch(_){return false;}}
+(async()=>{await 0;if(HOSTED)return;try{if(window.claude&&window.claude.use)DL=await window.claude.use("downloads");}catch(_){}render();})();
+const KINDS=[["weekly","Weekly supervision"],["makeup","Monthly makeups"],["sup","Monthly supervision"],["oh","Office hours"],["cover","Sessions you're covering"]];
+const kindOf=x=>x.covering?"cover":x.type;
+let PICK=null,ADDMSG="";
+function pickedList(id){const ss=SNAP.sessions[id]||[];return ss.filter(x=>PICK.has(kindOf(x)));}
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function zip1(name,text){
+  const enc=new TextEncoder(),nb=enc.encode(name),db=enc.encode(text),crc=crc32(db),d=new Date();
+  const dt=((d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1))&0xFFFF,dd=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF;
+  const loc=new Uint8Array(30+nb.length),cen=new Uint8Array(46+nb.length),end=new Uint8Array(22);
+  const L=new DataView(loc.buffer),C=new DataView(cen.buffer),E=new DataView(end.buffer);
+  L.setUint32(0,0x04034b50,true);L.setUint16(4,20,true);L.setUint16(6,0x0800,true);L.setUint16(8,0,true);L.setUint16(10,dt,true);L.setUint16(12,dd,true);L.setUint32(14,crc,true);L.setUint32(18,db.length,true);L.setUint32(22,db.length,true);L.setUint16(26,nb.length,true);L.setUint16(28,0,true);loc.set(nb,30);
+  C.setUint32(0,0x02014b50,true);C.setUint16(4,20,true);C.setUint16(6,20,true);C.setUint16(8,0x0800,true);C.setUint16(10,0,true);C.setUint16(12,dt,true);C.setUint16(14,dd,true);C.setUint32(16,crc,true);C.setUint32(20,db.length,true);C.setUint32(24,db.length,true);C.setUint16(28,nb.length,true);C.setUint32(42,0,true);cen.set(nb,46);
+  E.setUint32(0,0x06054b50,true);E.setUint16(8,1,true);E.setUint16(10,1,true);E.setUint32(12,cen.length,true);E.setUint32(16,loc.length+db.length,true);
+  const out=new Uint8Array(loc.length+db.length+cen.length+end.length);out.set(loc,0);out.set(db,loc.length);out.set(cen,loc.length+db.length);out.set(end,loc.length+db.length+cen.length);return out;
+}
+const icsName=id=>`attunify-schedule-${id}.ics`;
+async function saveIcs(){
+  const id=who.value;const list=pickedList(id);if(!list.length)return;
+  const file=ics(list,id);
+  const box=document.getElementById("icsbox");box.hidden=true;
+  if(DL){
+    try{const r=await DL.save({filename:`attunify-schedule-${id}.zip`,data:zip1(icsName(id),file)});
+      ADDMSG=r&&r.status==="delivered"?"":`Downloaded attunify-schedule-${id}.zip with ${list.length} session${list.length>1?"s":""}. Follow the steps below to add it to your calendar.`;showMsg("ok");return;}
+    catch(e){if(e&&e.code==="declined")return;}
+  }
+  if(HOSTED&&blobSave(`attunify-schedule-${id}.zip`,zip1(icsName(id),file),"application/zip")){ADDMSG=`Downloaded attunify-schedule-${id}.zip with ${list.length} session${list.length>1?"s":""}. Follow the steps below to add it to your calendar.`;showMsg("ok");return;}
+  showFallback(id,file);
+}
+function showMsg(kind){const el=document.getElementById("addmsg");if(!el)return;el.className="status "+kind;el.textContent=ADDMSG;el.hidden=!ADDMSG;}
+function showFallback(id,file){
+  const box=document.getElementById("icsbox");box.hidden=false;
+  box.querySelector("textarea").value=file;
+  const a=box.querySelector("a.dlics");try{if(a.dataset.url)URL.revokeObjectURL(a.dataset.url);const u=URL.createObjectURL(new Blob([file],{type:"text/calendar"}));a.href=u;a.dataset.url=u;a.download=icsName(id);}catch(_){a.hidden=true;}
+  box.querySelector(".fname").textContent=icsName(id);
+}
+async function copyIcs(){const t=document.querySelector("#icsbox textarea");try{await navigator.clipboard.writeText(t.value);document.getElementById("copied").textContent="Copied.";}catch(_){t.select();document.getElementById("copied").textContent="Selected. Press Ctrl+C (Windows) or Cmd+C (Mac) to copy.";}}
+const d=new Date(SNAP.generatedAt);
+document.getElementById("updated").textContent=`Choose your name to see your assignments and build your monthly invoice. Let us know whether each one works, and if something doesn't, which dates or times and what would work instead. Schedule last updated ${MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}.`;
+const who=document.getElementById("who");
+who.innerHTML+=SNAP.instructors.map(i=>`<option value="${esc(i.id)}">${esc(i.name)}</option>`).join("");
+try{const v=localStorage.getItem("attunify-inst");if(v&&SNAP.instructors.some(i=>i.id===v))who.value=v;}catch(_){}
+who.addEventListener("change",()=>{SEL=null;MONTH="";PICK=null;ADDMSG="";try{localStorage.setItem("attunify-inst",who.value);}catch(_){}render();});
+function render(){
+  const id=who.value,out=document.getElementById("out");
+  if(!id){out.innerHTML="";return;}
+  if(TAB==="invoice"){out.innerHTML=tabBar()+renderInvoice(id);bindTabs();bindInv();return;}
+  const name=(SNAP.instructors.find(i=>i.id===id)||{}).name||"";
+  const as=SNAP.assignments[id]||[],ss=SNAP.sessions[id]||[];
+  if(!as.length){out.innerHTML=`<div class="empty">You don't have any assignments yet.</div>`;return;}
+  const allVer=hsh(as.map(a=>a.ver).join("#"));
+  const card=a=>`<div class="panel"><div class="row"><div>${a.kind==="cover"?`<span class="flag">Coverage</span>`:`<span class="chip t-${a.type}">${TYPES[a.type]}</span>`}<div class="title">${esc(a.label)}</div><div class="detail">${esc(a.detail)}</div></div>
+    <div class="btns"><a class="btn" target="_blank" rel="noopener" href="${esc(replyLink(name,a.key,a.label,a.ver,"Works for me"))}">Works for me</a><a class="btn" target="_blank" rel="noopener" href="${esc(replyLink(name,a.key,a.label,a.ver,"Doesn't work"))}">Doesn't work</a></div></div></div>`;
+  const byM={};ss.forEach(x=>(byM[x.date.slice(0,7)]||=[]).push(x));
+  out.innerHTML=`${tabBar()}<div class="panel row"><div><b>Does everything below work for you?</b><div class="small">One reply confirms all of it. Otherwise reply to each assignment.</div></div><a class="btn primary" target="_blank" rel="noopener" href="${esc(replyLink(name,"ALL","Entire schedule",allVer,"Works for me"))}">All of this works for me</a></div>
+  <h2>Your assignments</h2>${as.map(card).join("")}
+  <h2>All your sessions</h2>
+  <div class="row"><div class="seg" role="group" aria-label="View"><button data-view="calendar" aria-pressed="${VIEW==="calendar"}">Calendar</button><button data-view="list" aria-pressed="${VIEW==="list"}">List</button></div>
+<a class="btn primary" href="#addcal">Add to my calendar</a></div>
+  ${VIEW==="calendar"?"":`<p class="small">Switch to the calendar view to add single sessions to Google Calendar.</p>`}
+  ${VIEW==="calendar"?calendar(ss,Object.keys(byM).sort()):list(byM)}
+  ${addPanel(id,ss)}
+  <p class="small" style="margin-top:20px">Questions? Email ${CONTACT}.</p>`;
+  bind();
+}
+function addPanel(id,ss){
+  const counts={};ss.forEach(x=>{const k=kindOf(x);counts[k]=(counts[k]||0)+1;});
+  const kinds=KINDS.filter(([k])=>counts[k]);
+  if(!PICK)PICK=new Set(kinds.map(([k])=>k));
+  const n=ss.filter(x=>PICK.has(kindOf(x))).length;
+  const how=(t,open,items)=>`<details class="how"${open?" open":""}><summary>${t}</summary><ol>${items.map(x=>`<li>${x}</li>`).join("")}</ol></details>`;
+  return `<div class="panel addcal" id="addcal" style="margin-top:20px"><h3>Add sessions to your calendar</h3>
+  <div class="small">Choose which sessions to include, then download one calendar file with all of them. Times are set in Eastern Time and your calendar shows them in your own time zone.</div>
+  <div class="picks" role="group" aria-label="Sessions to include">${kinds.map(([k,l])=>`<label class="pick"><input type="checkbox" data-pick="${k}"${PICK.has(k)?" checked":""}> <span class="chip t-${k==="cover"?"weekly":k}">${esc(l)}</span> <span class="n">${counts[k]}</span></label>`).join("")}</div>
+  <div class="row" style="justify-content:flex-start"><button class="btn primary" id="icsbtn"${n?"":" disabled"}>${n?`Download calendar file (${n} session${n>1?"s":""})`:"Choose at least one type"}</button></div>
+  <div id="addmsg" class="status ok"${ADDMSG?"":" hidden"}>${esc(ADDMSG)}</div>
+  <div id="icsbox" class="panel" hidden style="margin-top:12px"><p class="small" style="margin-top:0">This browser blocked the download. Try <a class="dlics" href="#">downloading <span class="fname">the .ics file</span> directly</a>. If nothing downloads, click <b>Copy</b>, paste into a plain text editor (Notepad on Windows, TextEdit on Mac set to Format &gt; Make Plain Text), and save it with the name shown, ending in <b>.ics</b>. Then follow the steps below.</p><div class="row" style="justify-content:flex-start;margin-bottom:6px"><button class="btn" data-act="copy">Copy</button><span class="small" id="copied"></span></div><textarea readonly style="width:100%;height:110px;font-family:ui-monospace,monospace;font-size:12px"></textarea></div>
+  <div class="steps-h">Step 1: Open the downloaded file</div>
+  <div class="small" style="margin-bottom:4px">The download is a .zip file that holds your calendar file (it ends in .ics).</div>
+  ${how("Windows",false,["Open your <b>Downloads</b> folder.","Right-click <b>attunify-schedule-"+esc(id)+".zip</b> and choose <b>Extract All</b>, then <b>Extract</b>.","A folder opens with <b>attunify-schedule-"+esc(id)+".ics</b> in it. Leave that window open for step 2."])}
+  ${how("Mac",false,["Open your <b>Downloads</b> folder in Finder.","Double-click <b>attunify-schedule-"+esc(id)+".zip</b>.","<b>attunify-schedule-"+esc(id)+".ics</b> appears next to it in Downloads."])}
+  ${how("iPhone or iPad",false,["When the download asks where to save it, choose <b>Save to Files</b>.","Open the <b>Files</b> app and tap the .zip file. It unzips into a .ics file in the same folder.","Tap the .ics file, then tap <b>Add All</b> and pick a calendar. If you use Google or Outlook on your phone, it is easier to import on a computer with the steps below. The sessions then sync to your phone."])}
+  <div class="steps-h">Step 2: Import it into your calendar</div>
+  ${how("Google Calendar (on a computer)",true,["Go to <b>calendar.google.com</b> and sign in.","Click the gear icon at the top right, then <b>Settings</b>.","In the left menu, click <b>Import &amp; export</b>.","Click <b>Select file from your computer</b> and choose <b>attunify-schedule-"+esc(id)+".ics</b>.","Under <b>Add to calendar</b>, pick the calendar you want.","Click <b>Import</b>. Click the arrow at the top left to go back to your calendar."])}
+  ${how("Outlook on the web, Outlook.com, or new Outlook",false,["Open your Outlook calendar.","Click <b>Add calendar</b> in the left panel.","Choose <b>Upload from file</b>, then <b>Browse</b>, and select <b>attunify-schedule-"+esc(id)+".ics</b>.","Pick the calendar to add the sessions to, then click <b>Import</b>."])}
+  ${how("Classic Outlook for Windows",false,["In Outlook, go to <b>File</b> &gt; <b>Open &amp; Export</b> &gt; <b>Import/Export</b>.","Choose <b>Import an iCalendar (.ics) or vCalendar file (.vcs)</b>, then <b>Next</b>.","Select <b>attunify-schedule-"+esc(id)+".ics</b> and click <b>OK</b>.","When asked, click <b>Import</b> so the sessions go into your main calendar."])}
+  ${how("Apple Calendar on a Mac",false,["Double-click <b>attunify-schedule-"+esc(id)+".ics</b>. Calendar opens.","Choose the calendar to add the sessions to and click <b>OK</b>.","Or, in Calendar, go to <b>File</b> &gt; <b>Import</b> and pick the file."])}
+  <p class="small" style="margin-bottom:0">If your schedule changes, we'll let you know. Importing the file again can create duplicates, so delete the old sessions first or add just the changed ones from the calendar view.</p>
+  </div>`;
+}
+function list(byM){return Object.keys(byM).sort().map(m=>`<div class="small" style="font-weight:700;margin:14px 0 4px">${ml(m)}</div><div class="panel scroll" style="padding:4px 12px"><table><tbody>${byM[m].map(x=>`<tr><td>${dl(x.date)}</td><td>${tl(x.time)} ET / ${tl(pt(x.time))} PT</td><td><span class="chip t-${x.type}">${TYPES[x.type]}</span></td><td>${esc(x.unit)} <span class="small">${esc(x.sub)}</span>${x.covering?` <span class="flag">Covering for ${esc(x.covering)}</span>`:""}</td></tr>`).join("")}</tbody></table></div>`).join("");}
+function calendar(ss,months){
+  if(!months.length)return"";
+  if(!months.includes(MONTH)){const now=new Date().toISOString().slice(0,7);MONTH=months.find(m=>m>=now)||months[0];}
+  const [y,m]=MONTH.split("-").map(Number);const first=new Date(Date.UTC(y,m-1,1));
+  let start=new Date(first);start.setUTCDate(1-((first.getUTCDay()+6)%7));
+  const cells=[];for(let w=0;w<6;w++){for(let k=0;k<5;k++){const dd=new Date(start);dd.setUTCDate(start.getUTCDate()+w*7+k);cells.push(dd.toISOString().slice(0,10));}const nx=new Date(start);nx.setUTCDate(start.getUTCDate()+(w+1)*7);if(nx.getUTCMonth()!==m-1&&w>=3)break;}
+  const i=months.indexOf(MONTH);
+  const byD={};ss.forEach((x,n)=>(byD[x.date]||=[]).push(n));
+  const sel=SEL!==null?ss[SEL]:null;
+  return `<div class="calhead"><button class="btn" data-nav="-1"${i<=0?" disabled":""} aria-label="Previous month">Previous</button><b>${ml(MONTH)}</b><button class="btn" data-nav="1"${i>=months.length-1?" disabled":""} aria-label="Next month">Next</button></div>
+  <div class="scroll"><div class="cal">${["Mon","Tue","Wed","Thu","Fri"].map(x=>`<div class="dh">${x}</div>`).join("")}${cells.map(c=>`<div class="day${c.slice(0,7)===MONTH?"":" out"}"><span class="dn">${+c.slice(8)}</span>${(byD[c]||[]).map(n=>{const x=ss[n];return `<button class="ev t-${x.type}" data-ev="${n}" title="${esc(TYPES[x.type]+", "+x.unit)}"><b>${tl(x.time)}</b> <span>${esc(x.unit)}</span></button>`;}).join("")}</div>`).join("")}</div></div>
+  ${sel?`<div class="panel detail-pop"><span class="chip t-${sel.type}">${TYPES[sel.type]}</span><div class="title">${esc(sel.unit)}, ${esc(sel.sub)}</div><div class="detail">${dl(sel.date)}, ${tl(sel.time)} to ${tl(endOf(sel).slice(0,2)+":"+endOf(sel).slice(2,4))} ET (${tl(pt(sel.time))} PT)${sel.covering?`. Covering for ${esc(sel.covering)}`:""}</div><div class="btns" style="margin-top:8px"><a class="btn" target="_blank" rel="noopener" href="${esc(gcal(sel))}">Add to Google Calendar</a></div></div>`:`<p class="small">Click a session for details and to add it to Google Calendar.</p>`}`;
+}
+function bind(){
+  bindTabs();
+  document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{VIEW=b.dataset.view;render();});
+  document.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>{const ms=Object.keys((SNAP.sessions[who.value]||[]).reduce((o,x)=>(o[x.date.slice(0,7)]=1,o),{})).sort();const i=ms.indexOf(MONTH)+(+b.dataset.nav);if(ms[i]){MONTH=ms[i];SEL=null;render();}});
+  document.querySelectorAll("[data-ev]").forEach(b=>b.onclick=()=>{SEL=+b.dataset.ev;render();});
+  const ib=document.getElementById("icsbtn");if(ib)ib.onclick=saveIcs;
+  document.querySelectorAll("[data-pick]").forEach(c=>c.onchange=()=>{if(c.checked)PICK.add(c.dataset.pick);else PICK.delete(c.dataset.pick);ADDMSG="";const y=window.scrollY;render();window.scrollTo(0,y);});
+  const cp=document.querySelector('[data-act="copy"]');if(cp)cp.onclick=copyIcs;
+}
+/* ---------- invoice kit: same code on the instructor page and the admin tool ---------- */
+const InvKit=(()=>{
+  const MS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],MLONG=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const pd=s=>{const[y,m,d]=String(s).split("-").map(Number);return new Date(Date.UTC(y,(m||1)-1,d||1));};
+  const longD=s=>{const d=pd(s);return MS[d.getUTCMonth()]+" "+d.getUTCDate()+", "+d.getUTCFullYear();};
+  const monthLong=m=>{const[y,x]=String(m).split("-");return MLONG[+x-1]+" "+y;};
+  const addD=(s,n)=>{const d=pd(s);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);};
+  const lastDay=m=>{const[y,x]=String(m).split("-").map(Number);return new Date(Date.UTC(y,x,0)).toISOString().slice(0,10);};
+  const r2=n=>Math.round(n*100)/100;
+  const usd=n=>(n<0?"-":"")+"$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const usd0=n=>(n<0?"-":"")+"$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:Math.abs(n)%1?2:0,maximumFractionDigits:2});
+  const FIN="finance@attunify.co",PAYEE="Attunify Inc";
+  const LBL={weekly:"Weekly supervision classes",sup:"Monthly reflective supervision",makeup:"Instructor-led makeups",oh:"Office hours",team:"Team meetings",cover:"Weekly classes you covered",missed:"Weekly classes you missed",supCover:"Monthly supervision you covered",supMissed:"Monthly supervision you missed",atrisk:"At-risk check-ins",ext:"Extenuating circumstance makeups"};
+  const NEG={missed:1,supMissed:1};
+  const due=o=>addD(o.dt,30);
+  function lines(o,rates){
+    const q=o.q||{},x=o.x||{},nt=o.nt||{};
+    return Object.keys(LBL).map(k=>{const r=(rates||{})[k]||{hrs:0,rate:0};const hrs=+r.hrs||0,rate=+r.rate||0,per=r2(hrs*rate),n=+q[k]||0;
+      return{k,l:LBL[k],n,hrs,rate,per,amt:r2(n*per),changed:n!==(+x[k]||0),note:String(nt[k]||"").trim(),neg:!!NEG[k]};});
+  }
+  function other(o){return (Array.isArray(o.oc)?o.oc:[]).map(r=>({d:String(r.d||"").trim().slice(0,120)||"Other charge",a:r2(+r.a||0)})).filter(r=>r.a);}
+  function encode(o){const b=new TextEncoder().encode(JSON.stringify(o));let s="";b.forEach(v=>s+=String.fromCharCode(v));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+  function summary(o,rates){
+    const R=lines(o,rates),S=[],nm=o.nm||"";
+    S.push(`Invoice ${o.no}`,`From: ${o.bill||nm}${o.bill&&o.bill!==nm?` (instructor: ${nm})`:""}`);
+    if(o.em)S.push(`Email: ${o.em}`);
+    S.push(`To: ${PAYEE}, ${FIN}`,`Service period: ${monthLong(o.m)}`,`Invoice date: ${longD(o.dt)}. Terms: Net 30, due ${longD(due(o))}.`,"");
+    R.filter(r=>r.n).forEach(r=>S.push(`${r.l}: ${r.n} x ${usd0(Math.abs(r.per))} = ${usd(r.amt)}`));
+    other(o).forEach(r=>S.push(`Other: ${r.d} = ${usd(r.a)}`));
+    S.push("",`Total due: ${usd(+o.amt||0)}`);
+    const notes=R.filter(r=>r.note&&(r.n||r.changed));
+    if(notes.length){S.push("","Notes:");notes.forEach(r=>S.push(`- ${r.l}: ${r.note}`));}
+    if((+(o.q||{}).ext||0)>0)S.push(o.ap?"Extenuating makeups were approved by Neal and Christine before scheduling.":"Extenuating makeup approval not confirmed.");
+    S.push("",`Ref ATU1.${encode(o)}.END`);
+    return S.join("\n");
+  }
+  function pdf(o,opt){
+    const J=opt&&opt.J;if(!J)throw new Error("nolib");
+    const rates=opt.rates||{},details=opt.details||{};
+    const rows=lines(o,rates),ref=encode(o),sum=summary(o,rates),nm=o.nm||"",bill=o.bill||nm,dueD=due(o);
+    const doc=new J({unit:"pt",format:"letter"});const W=612,H=792,M=54,R=W-M;
+    const brand=[35,82,90],ink=[27,42,49],mute=[88,103,110],line=[213,220,217];
+    let y=64;
+    const T=(t,x,yy,s={})=>{doc.setFont("helvetica",s.b?"bold":s.i?"italic":"normal");doc.setFontSize(s.s||10);doc.setTextColor(...(s.c||ink));doc.text(String(t),x,yy,s.a?{align:s.a}:undefined);};
+    const rule=(yy,c2=line,w=0.75)=>{doc.setDrawColor(...c2);doc.setLineWidth(w);doc.line(M,yy,R,yy);};
+    const need=h=>{if(y+h>H-70){doc.addPage();y=60;}};
+    T("INVOICE",M,y,{s:24,b:true,c:brand});
+    [["Invoice number",o.no],["Invoice date",longD(o.dt)],["Due date",longD(dueD)],["Terms","Net 30"]].forEach(([k,v],n)=>{T(k,R-150,y-14+n*15,{s:9,c:mute,a:"right"});T(v,R,y-14+n*15,{s:9.5,b:true,a:"right"});});
+    y+=58;rule(y,brand,1.5);y+=24;
+    T("FROM",M,y,{s:8,b:true,c:mute});T("BILL TO",W/2+10,y,{s:8,b:true,c:mute});y+=15;
+    const from=[bill,...(o.bill&&o.bill!==nm?[nm]:[]),...String(o.ad||"").split(/\n/).map(s=>s.trim()).filter(Boolean),...(o.em?[o.em]:[])];
+    const fy=y;from.forEach((s,n)=>{doc.splitTextToSize(s,W/2-M-10).forEach(p=>{T(p,M,y,{s:10.5,b:n===0});y+=14;});});
+    let ty=fy;[PAYEE,FIN].forEach((s,n)=>{T(s,W/2+10,ty,{s:10.5,b:n===0});ty+=14;});y=Math.max(y,ty)+14;
+    T(`Instructor services, ${monthLong(o.m)}`,M,y,{s:11,b:true});y+=14;
+    T(`Service period ${longD(o.m+"-01")} to ${longD(lastDay(o.m))}. Attunify by Thrive Center IECMHC program.`,M,y,{s:9,c:mute});y+=22;
+    const cx={d:M,q:340,h:395,r:460,a:R};
+    doc.setFillColor(233,237,235);doc.rect(M,y-12,R-M,18,"F");T("Description",cx.d+6,y,{s:8.5,b:true,c:mute});T("Qty",cx.q,y,{s:8.5,b:true,c:mute,a:"right"});T("Hours",cx.h,y,{s:8.5,b:true,c:mute,a:"right"});T("Rate",cx.r,y,{s:8.5,b:true,c:mute,a:"right"});T("Amount",cx.a-6,y,{s:8.5,b:true,c:mute,a:"right"});y+=20;
+    rows.filter(r=>r.n).forEach(r=>{
+      const subs=[];const dt=!r.changed?(details[r.k]||""):"";if(dt)subs.push(...doc.splitTextToSize(dt,cx.q-cx.d-40));
+      const nl=r.note?doc.splitTextToSize("Note: "+r.note,cx.q-cx.d-40):[];
+      need(16+subs.length*11+nl.length*11+8);
+      T(r.l,cx.d+6,y,{s:10});T(r.n,cx.q,y,{s:10,a:"right"});T((r.neg?"-":"")+(r.hrs<0?-r.hrs:r.hrs)*r.n,cx.h,y,{s:10,a:"right"});T(r.k==="atrisk"?usd0(r.per)+" ea":usd0(r.rate)+"/hr",cx.r,y,{s:10,a:"right"});T(usd(r.amt),cx.a-6,y,{s:10,a:"right",b:true});
+      y+=12;subs.forEach(s=>{T(s,cx.d+6,y,{s:8,c:mute});y+=11;});nl.forEach(s=>{T(s,cx.d+6,y,{s:8,i:true,c:mute});y+=11;});
+      y+=4;rule(y);y+=14;
+    });
+    other(o).forEach(r=>{
+      const dl=doc.splitTextToSize("Other: "+r.d,cx.q-cx.d-40);
+      need(16+(dl.length-1)*11+8);
+      T(dl[0],cx.d+6,y,{s:10});T(1,cx.q,y,{s:10,a:"right"});T(usd(r.a),cx.a-6,y,{s:10,a:"right",b:true});
+      y+=12;dl.slice(1).forEach(s=>{T(s,cx.d+6,y,{s:10});y+=11;});
+      y+=4;rule(y);y+=14;
+    });
+    need(60);y+=4;
+    const hrs=rows.reduce((a,r)=>a+r.n*r.hrs,0);
+    T("Total hours",cx.r,y,{s:9.5,c:mute,a:"right"});T(String(r2(hrs)),cx.a-6,y,{s:9.5,a:"right"});y+=20;
+    doc.setFillColor(...brand);doc.rect(cx.h-40,y-14,R-cx.h+40,24,"F");T("Total due",cx.h-30,y+2,{s:11,b:true,c:[255,255,255]});T(usd(+o.amt||0),cx.a-8,y+2,{s:12,b:true,c:[255,255,255],a:"right"});y+=34;
+    if((+(o.q||{}).ext||0)>0&&o.ap){need(20);T("Extenuating circumstance makeups were approved by Neal and Christine before scheduling.",M,y,{s:8.5,c:mute});y+=14;}
+    need(70);y+=10;rule(y);y+=18;
+    T("Payment",M,y,{s:9,b:true});y+=14;
+    [`Terms: Net 30. Payment due by ${longD(dueD)}.`,`Please send this invoice to ${PAYEE} at ${FIN}.`,`Reference: ${o.no}`].forEach(s=>{T(s,M,y,{s:9.5});y+=14;});
+    doc.setProperties({title:`Invoice ${o.no}`,subject:`Ref ATU1.${ref}.END`,keywords:`ATU1.${ref}.END`,author:bill});
+    doc.addPage();y=64;
+    T("Invoice summary",M,y,{s:14,b:true,c:brand});y+=16;
+    doc.splitTextToSize("For Attunify program records. This is the same summary as Copy invoice summary, including the reference line used to log the invoice.",R-M).forEach(s=>{T(s,M,y,{s:9,c:mute});y+=12;});
+    y+=6;rule(y);y+=16;
+    const mono=(t,b)=>{doc.setFont("courier",b?"bold":"normal");doc.setFontSize(8.5);doc.setTextColor(...ink);doc.text(String(t),M,y);};
+    const cw=Math.floor((R-M)/(8.5*0.6))-2;
+    sum.split("\n").forEach(ln=>{
+      if(ln.startsWith("Ref ATU1.")){
+        const parts=["Ref ATU1."];for(let k=0;k<ref.length;k+=cw)parts.push(ref.slice(k,k+cw));parts.push(".END");
+        need(parts.length*11+6);parts.forEach(p=>{mono(p,p==="Ref ATU1."||p===".END");y+=11;});return;
+      }
+      doc.setFont("courier","normal");doc.setFontSize(8.5);const segs=ln?doc.splitTextToSize(ln,R-M):[""];segs.forEach(p=>{need(11);mono(p);y+=11;});
+    });
+    const pages=doc.getNumberOfPages();for(let p=1;p<=pages;p++){doc.setPage(p);T(`${o.no}  ·  Page ${p} of ${pages}`,R,H-34,{s:8,c:mute,a:"right"});}
+    return doc.output("arraybuffer");
+  }
+  return{lines,other,encode,summary,pdf,label:k=>LBL[k]||k};
+})();
+/* ---------- monthly invoice ---------- */
+const FIN="finance@attunify.co",PAYEE="Attunify Inc";
+const MONL=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const RATE_DEF={weekly:{hrs:2.5,rate:150},sup:{hrs:1,rate:150},makeup:{hrs:1,rate:150},oh:{hrs:1,rate:150},team:{hrs:1,rate:150},cover:{hrs:2.5,rate:150},missed:{hrs:-2.5,rate:150},supCover:{hrs:1,rate:150},supMissed:{hrs:-1,rate:150},atrisk:{hrs:0.25,rate:200},ext:{hrs:1,rate:150}};
+const RATES=Object.assign({},RATE_DEF,SNAP.rates||{});
+const TEAM=SNAP.teamPerMonth===undefined?2:+SNAP.teamPerMonth;
+const GROUPS=[["sched","Scheduled work","Filled in from your schedule. Change a count if something didn't happen as planned."],["cov","Coverage","Classes you covered for someone else, or that someone covered for you."],["sup","Participant support","Not on the schedule. Add these yourself when they happen."]];
+const LINES=[
+ {k:"weekly",g:"sched",l:"Weekly supervision classes",help:"Each 90-minute class plus 1 hour of prep, admin, and evaluation, billed as 2.5 hours. A class counts in the month it meets, so a week that spans two months is billed in the month of your class day."},
+ {k:"sup",g:"sched",l:"Monthly reflective supervision",help:"1 hour for each monthly supervision session you led this month, one per group."},
+ {k:"makeup",g:"sched",l:"Instructor-led makeups",help:"1 hour for each monthly makeup session you led, counted in the month it took place."},
+ {k:"oh",g:"sched",l:"Office hours",help:"1 hour for each office hours session you hosted this month."},
+ {k:"team",g:"sched",l:"Team meetings",help:`Team meetings are bi-weekly, so this starts at ${TEAM} a month. Add any extra meetings you attended, or lower it if one was canceled.`},
+ {k:"cover",g:"cov",l:"Weekly classes you covered",help:"Adds 2.5 hours for each weekly class you taught for another instructor."},
+ {k:"missed",g:"cov",neg:true,l:"Weekly classes you missed",help:"Subtracts 2.5 hours for each of your weekly classes that another instructor covered."},
+ {k:"supCover",g:"cov",l:"Monthly supervision you covered",help:"Adds 1 hour for each monthly supervision session you led for another instructor."},
+ {k:"supMissed",g:"cov",neg:true,l:"Monthly supervision you missed",help:"Subtracts 1 hour for each of your monthly sessions that another instructor covered."},
+ {k:"atrisk",g:"sup",ask:"Who and when, for example: A.B. on Nov 12",l:"At-risk check-ins",help:"$50 each (15 minutes). Bill a check-in only when you met with a participant flagged at risk, at the midpoint of Phase 1 or Phase 2. An email or message on its own isn't billed."},
+ {k:"ext",g:"sup",ask:"Who and when, for example: C.D. on Nov 18",l:"Extenuating circumstance makeups",help:"1 hour each. Only for a participant whose extenuating circumstance kept them from several sessions and put them at risk, and only when Neal and Christine approved the plan before the makeup was scheduled."}
+];
+const LBY=Object.fromEntries(LINES.map(L=>[L.k,L]));
+const per=k=>{const r=RATES[k]||{hrs:0,rate:0};return Math.round((+r.hrs||0)*(+r.rate||0)*100)/100;};
+const usd=n=>(n<0?"-":"")+"$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const usd0=n=>(n<0?"-":"")+"$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:Math.abs(n)%1?2:0,maximumFractionDigits:2});
+const hrsTxt=h=>{const a=Math.abs(h);return (a===0.25?"15 min":a+" hr"+(a===1?"":"s"));};
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());};
+const addD=(s,n)=>{const d=pd(s);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);};
+const monOf=s=>{const d=pd(s);return addD(s,-((d.getUTCDay()+6)%7));};
+const longD=s=>{const d=pd(s);return MON[d.getUTCMonth()]+" "+d.getUTCDate()+", "+d.getUTCFullYear();};
+const shortD=s=>{const d=pd(s);return MON[d.getUTCMonth()]+" "+d.getUTCDate();};
+const monthLong=m=>{const[y,x]=m.split("-");return MONL[+x-1]+" "+y;};
+const lastDay=m=>{const[y,x]=m.split("-").map(Number);return new Date(Date.UTC(y,x,0)).toISOString().slice(0,10);};
+const prevM=m=>{let[y,x]=m.split("-").map(Number);x--;if(x<1){x=12;y--;}return y+"-"+pad(x);};
+const uniqA=a=>[...new Set(a)];
+const nameOf=id=>(SNAP.instructors.find(i=>i.id===id)||{}).name||"";
+const inits=s=>String(s||"").split(/[\s-]+/).filter(Boolean).map(w=>w[0]).join("").toUpperCase().replace(/[^A-Z]/g,"").slice(0,3)||"X";
+const lsGet=k=>{try{return JSON.parse(localStorage.getItem(k)||"null");}catch(_){return null;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(_){}};
+
+let TAB=/invoice/i.test(location.hash)?"invoice":"schedule",INVID="",IM="",IE=null,IP=null,IMSG="",DLIB=null;
+
+function expected(id,m){
+  const name=nameOf(id),own=SNAP.sessions[id]||[];
+  const cb={};Object.entries(SNAP.sessions).forEach(([j,l])=>{if(j!==id)(l||[]).forEach(x=>{if(x.covering&&x.covering===name)cb[x.type+"|"+x.unit+"|"+x.date]=nameOf(j);});});
+  const det={};LINES.forEach(L=>det[L.k]=[]);
+  own.filter(x=>x.date.slice(0,7)===m).forEach(x=>{
+    const by=x.coveredBy||cb[x.type+"|"+x.unit+"|"+x.date]||"";
+    const d={date:x.date,time:x.time,unit:x.unit,who:x.covering||by};
+    if(x.covering){(x.type==="weekly"?det.cover:x.type==="sup"?det.supCover:det[x.type]).push(d);return;}
+    if(x.type==="weekly"){det.weekly.push(d);if(by)det.missed.push(d);}
+    else if(x.type==="sup"){det.sup.push(d);if(by)det.supMissed.push(d);}
+    else if(!by&&det[x.type])det[x.type].push(d);
+  });
+  const q={};LINES.forEach(L=>q[L.k]=det[L.k].length);
+  q.team=own.some(x=>x.date.slice(0,7)===m)?TEAM:0;
+  return{q,det};
+}
+function weeksInfo(id,m){
+  const own=SNAP.sessions[id]||[];const wk=own.filter(x=>x.type==="weekly"&&x.date.slice(0,7)===m);
+  const weeks=uniqA(wk.map(x=>monOf(x.date))).sort();const gaps=[];
+  uniqA(own.filter(x=>x.type==="weekly"&&!x.covering).map(x=>x.unit)).forEach(u=>{
+    const ds=own.filter(x=>x.type==="weekly"&&!x.covering&&x.unit===u).map(x=>x.date).sort();
+    for(let d=ds[0];d<=ds[ds.length-1];d=addD(d,7))if(d.slice(0,7)===m&&!ds.includes(d))gaps.push({unit:u,date:d});
+  });
+  return{weeks,gaps};
+}
+function invMonths(id){const own=SNAP.sessions[id]||[];return uniqA(own.map(x=>x.date.slice(0,7))).sort();}
+function defaultMonth(id){
+  const ms=invMonths(id),now=today().slice(0,7),day=+today().slice(8);
+  if(day<=10&&ms.includes(prevM(now)))return prevM(now);
+  if(ms.includes(now))return now;
+  return ms.find(x=>x>=now)||ms[ms.length-1]||now;
+}
+function invNo(id,m,bill){
+  const ms=invMonths(id);const first=ms[0]||m;const[y1,m1]=first.split("-").map(Number),[y2,m2]=m.split("-").map(Number);
+  const seq=Math.max(1,(y2-y1)*12+(m2-m1)+1);
+  return m.slice(5)+"-"+m.slice(0,4)+"-"+inits(nameOf(id))+"-"+String(seq).padStart(3,"0");
+}
+const ekey=(id,m)=>`attunify-inv-${id}-${m}`;
+function loadEdits(id,m){const e=lsGet(ekey(id,m))||{};return{q:e.q||{},notes:e.notes||{},ap:!!e.ap,dt:e.dt||"",no:e.no||"",oc:Array.isArray(e.oc)?e.oc:[]};}
+function saveEdits(){if(IE)lsSet(ekey(IE.id,IE.m),{q:IE.q,notes:IE.notes,ap:IE.ap,dt:IE.dt,no:IE.no,oc:IE.oc});}
+function loadProfile(id){const p=lsGet("attunify-billfrom-"+id)||{};return{bill:p.bill||nameOf(id),addr:p.addr||"",email:p.email||""};}
+function saveProfile(){if(IP)lsSet("attunify-billfrom-"+IP.id,{bill:IP.bill,addr:IP.addr,email:IP.email});}
+
+function calc(){
+  const{id,m}=IE;const ex=expected(id,m);
+  const rows=LINES.map(L=>{const e=ex.q[L.k];const n=IE.q[L.k]!==undefined?IE.q[L.k]:e;const r=RATES[L.k]||{hrs:0,rate:0};const amt=Math.round(n*per(L.k)*100)/100;return{L,e,n,hrs:+r.hrs||0,rate:+r.rate||0,amt,det:ex.det[L.k],changed:n!==e,note:(IE.notes[L.k]||"").trim()};});
+  const oc=(IE.oc||[]).map(r=>({d:String(r.d||"").trim(),a:Math.round((+r.a||0)*100)/100}));
+  const ocT=Math.round(oc.reduce((n,r)=>n+(r.a>0?r.a:0),0)*100)/100;
+  const total=Math.round((rows.reduce((a,r)=>a+r.amt,0)+ocT)*100)/100,est=Math.round(rows.reduce((a,r)=>a+r.e*per(r.L.k),0)*100)/100;
+  const dt=IE.dt||today();const no=IE.no||invNo(id,m);const due=addD(dt,30);
+  const ahead=(SNAP.sessions[id]||[]).filter(x=>x.date.slice(0,7)===m&&x.date>today()).length;
+  const warn=[];
+  if(m>today().slice(0,7))warn.push(["warn",`${monthLong(m)} hasn't started yet. These counts are the plan, so check them again at the end of the month.`]);
+  else if(ahead)warn.push(["warn",`${monthLong(m)} isn't over yet. ${ahead} scheduled session${ahead>1?"s are":" is"} still ahead, so check the counts again before you send.`]);
+  rows.filter(r=>r.changed&&!r.note&&!r.L.ask).forEach(r=>warn.push(["need",`Add a short note on ${r.L.l.toLowerCase()} saying what changed from the schedule.`]));
+  rows.filter(r=>r.L.ask&&r.n>0&&!r.note).forEach(r=>warn.push(["need",`Add who and when for your ${r.L.l.toLowerCase()}.`]));
+  if(IE.q.ext>0&&!IE.ap)warn.push(["need","Confirm that Neal and Christine approved each extenuating circumstance makeup before it was scheduled."]);
+  if(!IP.bill.trim())warn.push(["need","Add your name or business name under Invoice details."]);
+  if(oc.some(r=>r.a>0&&!r.d))warn.push(["need","Add a short description for each other charge."]);
+  if(oc.some(r=>r.d&&!(r.a>0)))warn.push(["need","Add an amount for each other charge, or remove it."]);
+  if(total<0)warn.push(["need","The total is below zero. Check the missed and covered counts."]);
+  return{rows,oc,ocT,total,est,dt,no,due,warn,ex};
+}
+function detailText(r){
+  if(!r.det||!r.det.length)return"";
+  const by={};r.det.forEach(d=>{const k=d.unit+(d.who?(r.L.k==="cover"||r.L.k==="supCover"?" for "+d.who:" (covered by "+d.who+")"):"");(by[k]||=[]).push(shortD(d.date));});
+  return Object.entries(by).map(([k,v])=>k+": "+v.join(", ")).join("; ");
+}
+function lineRow(r){
+  const k=r.L.k,showNote=r.changed||(r.L.ask&&r.n>0);
+  const dt=detailText(r);
+  return `<div class="iline${r.changed?" chg":""}" data-line="${k}">
+   <div class="il-main"><div class="il-name">${esc(r.L.l)}</div>
+    <div class="il-rate">${k==="atrisk"?`${hrsTxt(r.hrs)}, ${usd0(per(k))} each`:`${r.L.neg?"minus ":""}${hrsTxt(r.hrs)} at ${usd0(r.rate)}/hr = ${usd0(Math.abs(per(k)))} each`}</div>
+    <details class="il-help"><summary>What counts</summary><p>${esc(r.L.help)}</p>${dt?`<p class="il-dates"><b>From your schedule:</b> ${esc(dt)}</p>`:""}</details></div>
+   <div class="il-sched"><span class="lbl">Schedule</span><b>${r.e}</b></div>
+   <div class="il-qty"><span class="lbl">You</span><div class="stepper"><button type="button" data-step="-1" data-k="${k}" aria-label="One fewer ${esc(r.L.l)}">−</button><input type="number" inputmode="numeric" min="0" step="1" id="q-${k}" data-q="${k}" value="${r.n}" aria-label="${esc(r.L.l)} count"><button type="button" data-step="1" data-k="${k}" aria-label="One more ${esc(r.L.l)}">+</button></div></div>
+   <div class="il-amt" data-amt="${k}">${r.amt?usd0(r.amt):`<span class="muted">$0</span>`}</div>
+   <div class="il-note"${showNote?"":" hidden"} data-noterow="${k}"><label for="n-${k}">${r.L.ask?esc(r.L.ask):"What changed from the schedule?"}</label><input type="text" id="n-${k}" data-note="${k}" value="${esc(IE.notes[k]||"")}" maxlength="300" placeholder="${r.L.ask?"":"For example: Sunny covered my Nov 5 class"}">
+   ${k==="ext"?`<label class="chk"><input type="checkbox" id="ap-ext" data-ap="1"${IE.ap?" checked":""}> Neal and Christine approved each of these before the makeup was scheduled</label>`:""}</div>
+  </div>`;
+}
+function renderInvoice(id){
+  const ms=invMonths(id);
+  if(!ms.length)return `<div class="empty">Nothing is scheduled for you yet, so there's nothing to invoice.</div>`;
+  if(INVID!==id){INVID=id;IM=defaultMonth(id);IE=null;IP=null;IMSG="";}
+  if(!IE||IE.id!==id||IE.m!==IM)IE=Object.assign({id,m:IM},loadEdits(id,IM));
+  if(!IP||IP.id!==id)IP=Object.assign({id},loadProfile(id));
+  const c=calc();const all=uniqA([...ms,today().slice(0,7)]).sort();const i=all.indexOf(IM);
+  const wi=weeksInfo(id,IM);
+  const weeksTxt=wi.weeks.length?`${wi.weeks.length} teaching week${wi.weeks.length>1?"s":""} in ${MONL[+IM.slice(5)-1]}: week${wi.weeks.length>1?"s":""} of ${wi.weeks.map(shortD).join(", ")}.`:`No weekly classes for you in ${MONL[+IM.slice(5)-1]}.`;
+  const gapTxt=wi.gaps.length?` No class ${wi.gaps.map(g=>`${shortD(g.date)} (${g.unit})`).join(", ")}, a break or holiday week.`:"";
+  const groups=GROUPS.map(([g,t,s])=>`<section class="igroup"><div class="ig-head"><h3>${t}</h3><p>${s}</p></div><div class="ig-cols" aria-hidden="true"><span></span><span>Schedule</span><span>Your count</span><span>Amount</span></div>${c.rows.filter(r=>r.L.g===g).map(lineRow).join("")}</section>`).join("");
+  return `
+  <div class="invhead">
+    <div class="calhead" style="margin:0"><button class="btn" data-im="-1"${i<=0?" disabled":""}>Previous</button><b>${monthLong(IM)}</b><button class="btn" data-im="1"${i>=all.length-1?" disabled":""}>Next</button></div>
+    <div class="totals"><div><span>Estimated from your schedule</span><b id="t-est">${usd(c.est)}</b></div><div class="mine"><span>Your invoice total</span><b id="t-tot">${usd(c.total)}</b><em id="t-diff">${diffTxt(c)}</em></div></div>
+    <p class="small" style="margin:10px 0 0">${esc(weeksTxt+gapTxt)}</p>
+  </div>
+  <ol class="howto"><li><b>Check each count</b> against what actually happened this month.</li><li><b>Change anything that's different</b> and add a short note. The note goes on your invoice. Add anything else, like a speaking event, under Other charges.</li><li><b>Fill in your invoice details</b>, then download the PDF and email it to ${FIN} with the summary. If the PDF won't download, open this page's link in Chrome, Safari, or Edge on a computer and try again.</li><li><b>Using your own invoicing tool?</b> Click Copy invoice summary and paste it onto your invoice (as a note) or into your email to ${FIN}. Keep the last line starting with Ref ATU1.; it's how the program team logs your invoice.</li></ol>
+  ${groups}
+  <section class="igroup"><div class="ig-head"><h3>Other charges</h3><p>Anything not listed above, like a speaking event. Add a short description and the amount. Both go on your invoice.</p></div>${ocRows()}<button class="btn" data-act="ocadd">Add a charge</button></section>
+  <div class="row" style="justify-content:flex-start;margin:4px 0 22px"><button class="btn" data-act="invreset">Reset counts to the schedule</button></div>
+  <h2>Invoice details</h2>
+  <div class="panel igrid">
+    <label class="f2" for="bill">Your name or business name (LLC)<input type="text" id="bill" data-prof="bill" value="${esc(IP.bill)}" maxlength="120" autocomplete="organization"></label>
+    <label class="f2" for="email">Your email (optional)<input type="email" id="email" data-prof="email" value="${esc(IP.email)}" maxlength="120" autocomplete="email"></label>
+    <label class="f2 wide" for="addr">Mailing address (optional)<textarea id="addr" rows="2" data-prof="addr" maxlength="300" autocomplete="street-address">${esc(IP.addr)}</textarea></label>
+    <label class="f2" for="dt">Invoice date<input type="date" id="dt" data-dt="1" value="${esc(c.dt)}"></label>
+    <label class="f2" for="no">Invoice number<input type="text" id="no" data-no="1" value="${esc(c.no)}" maxlength="40"></label>
+    <div class="f2"><span>Payment terms</span><div class="static">Net 30, due <b id="due">${longD(c.due)}</b></div></div>
+    <div class="f2"><span>Bill to</span><div class="static">${PAYEE}<br>${FIN}</div></div>
+  </div>
+  <p class="small">The invoice number is month, year, your initials, and your invoice count with Attunify. Your details are kept in this browser for next month.</p>
+  <div id="checks">${checksHtml(c)}</div>
+  <div class="panel sendbox">
+    <div class="row" style="justify-content:flex-start;gap:10px"><button class="btn primary" data-act="pdf">Download PDF invoice</button>${CANSHARE?`<button class="btn" data-act="sharepdf">Share PDF to email</button>`:""}<button class="btn" data-act="copysum">Copy invoice summary</button><a class="btn" id="mailbtn" href="${esc(mailHref(c))}" target="_blank" rel="noopener">Open email to finance</a></div>
+    <div id="invmsg" class="status ok"${IMSG?"":" hidden"}>${esc(IMSG)}</div>
+    <p class="small" style="margin:12px 0 0"><b>To send:</b> email the PDF to <span class="addr">${FIN}</span> <button class="btn link" data-act="copyaddr">Copy address</button>, and paste the copied summary into the email. The summary ends with a reference line the program team uses to log your invoice, so please keep it in. The PDF includes the same summary on its last page.${CANSHARE?" Share PDF to email attaches the PDF to a new email for you.":""}</p>
+    <p class="small" style="margin:8px 0 0"><b>If the PDF won't download:</b> open this page's link directly in Chrome, Safari, or Edge on a computer, not inside an email app or another app's preview, and try again. Your entries are saved in that browser, so if you switch browsers, re-check your counts and details first. If the email button doesn't open your email, start a new email yourself and paste the summary in.</p>
+  </div>
+  <details class="how" style="margin-top:16px"><summary>How amounts are calculated</summary>
+  <div class="scroll" style="margin:8px 0"><table class="rt"><tbody>${LINES.map(L=>`<tr><td>${esc(L.l)}</td><td>${L.neg?"minus ":""}${hrsTxt((RATES[L.k]||{}).hrs||0)}</td><td>${usd0(Math.abs(per(L.k)))} each</td></tr>`).join("")}</tbody></table></div>
+  <p class="small">Hourly rate $150 from your contractor agreement (at-risk check-ins are $50 each). A weekly class is 2.5 hours: 90 minutes live plus 1 hour of prep, admin, and evaluation. Each class counts in the month it meets, and break or holiday weeks with no class aren't counted. Missed and covered sessions only count when another instructor taught in your place.</p></details>`;
+}
+function ocRows(){return (IE.oc||[]).map((r,i)=>`<div class="ocline"><label for="ocd-${i}">Description<input type="text" id="ocd-${i}" data-ocd="${i}" value="${esc(r.d||"")}" maxlength="120" placeholder="For example: Speaking event, Nov 14"></label><label for="oca-${i}">Amount ($)<input type="number" inputmode="decimal" min="0" step="0.01" id="oca-${i}" data-oca="${i}" value="${esc(r.a??"")}" placeholder="0.00"></label><button type="button" class="btn link" data-ocdel="${i}" aria-label="Remove this charge">Remove</button></div>`).join("");}
+function diffTxt(c){const d=Math.round((c.total-c.est)*100)/100;return d?`${d>0?"+":""}${usd(d)} vs. schedule`:"Matches the schedule";}
+function checksHtml(c){
+  const need=c.warn.filter(w=>w[0]==="need"),warn=c.warn.filter(w=>w[0]==="warn");
+  return (warn.length?`<div class="status warn">${warn.map(w=>esc(w[1])).join(" ")}</div>`:"")+(need.length?`<div class="status need"><b>Before you send:</b><ul>${need.map(w=>`<li>${esc(w[1])}</li>`).join("")}</ul></div>`:`<div class="status ok">Ready to send.</div>`);
+}
+function invObj(c){
+  const q={},x={},nt={};c.rows.forEach(r=>{if(r.n)q[r.L.k]=r.n;if(r.e)x[r.L.k]=r.e;if(r.note)nt[r.L.k]=r.note.slice(0,300);});
+  const o={v:1,i:IE.id,nm:nameOf(IE.id),m:IE.m,no:c.no,dt:c.dt,bill:IP.bill,q,x,amt:c.total,nt,ap:!!IE.ap,gen:SNAP.generatedAt};
+  const ad=IP.addr.trim(),em=IP.email.trim();if(ad)o.ad=ad.slice(0,300);if(em)o.em=em.slice(0,120);
+  const oc=c.oc.filter(r=>r.a>0).map(r=>({d:(r.d||"Other charge").slice(0,120),a:r.a}));if(oc.length)o.oc=oc;
+  return o;
+}
+function summaryText(c){return InvKit.summary(invObj(c),RATES);}
+function mailHref(c){return `mailto:${FIN}?subject=${encodeURIComponent(`Invoice ${c.no}, ${IP.bill||nameOf(IE.id)}, ${monthLong(IE.m)}`)}&body=${encodeURIComponent(summaryText(c)+"\n\n(PDF invoice attached)")}`;}
+function buildPdf(c){const det={};c.rows.forEach(r=>{det[r.L.k]=detailText(r);});return InvKit.pdf(invObj(c),{J:window.jspdf&&window.jspdf.jsPDF,rates:RATES,details:det});}
+const pdfName=c=>`Attunify-invoice-${c.no}.pdf`.replace(/[^A-Za-z0-9._-]/g,"-");
+const NOLIB="The PDF tool didn't load. Check your connection and reload the page, then try again.";
+const CANSHARE=(()=>{try{return !!(navigator.canShare&&navigator.share&&navigator.canShare({files:[new File([new Uint8Array(1)],"t.pdf",{type:"application/pdf"})]}));}catch(_){return false;}})();
+let PDFURL="";
+function pdfFallback(buf,fn){
+  let url="";try{if(PDFURL)URL.revokeObjectURL(PDFURL);url=PDFURL=URL.createObjectURL(new Blob([buf],{type:"application/pdf"}));}catch(_){}
+  const el=document.getElementById("invmsg");if(!el)return;IMSG="";
+  el.className="status warn";el.hidden=false;
+  el.innerHTML=HOSTED?`Your browser didn't start the download.${url?` Try <a href="${url}" download="${esc(fn)}">downloading the PDF directly</a>, or <a href="${url}" target="_blank" rel="noopener">open it in a new tab</a> and save it from there.`:""} Still stuck? Email ${FIN} and we'll help.`:`Downloads don't work on this copy of the page unless you're signed in to Attunify's claude.ai account. Please use the new instructor page instead: <a href="${HOME_URL}" target="_blank" rel="noopener">${HOME_URL}</a>. It works in any browser. Your schedule is the same there, but you'll need to re-enter your invoice details the first time.`;
+}
+async function sharePdf(){
+  saveEdits();saveProfile();const c=calc();
+  let buf;try{buf=buildPdf(c);}catch(e){showInvMsg(NOLIB,"warn");return;}
+  const file=new File([buf],pdfName(c),{type:"application/pdf"});
+  showInvMsg(`Pick your email app, then send it to ${FIN}. The PDF is attached and your summary is in the message.`,"ok");
+  try{await navigator.share({files:[file],title:`Invoice ${c.no}`,text:summaryText(c)});}
+  catch(e){if(e&&e.name==="AbortError"){showInvMsg("","ok");return;}showInvMsg("Sharing isn't available in this view. Use Download PDF invoice instead.","warn");}
+}
+async function savePdf(){
+  saveEdits();saveProfile();const c=calc();
+  let buf;try{buf=buildPdf(c);}catch(e){showInvMsg(NOLIB,"warn");return;}
+  const fn=pdfName(c);
+  if(DL){
+    try{const r=await DL.save({filename:fn,data:buf});if(r&&r.status==="delivered")return;showInvMsg(`Saved ${fn}. Attach it to an email to ${FIN} and paste in the summary (Copy invoice summary).`,"ok");return;}
+    catch(e){if(e&&e.code==="declined")return;if(e&&e.code==="rate_limited"){showInvMsg("A download is already waiting for your answer. Finish that one first.","warn");return;}}
+  }
+  if(HOSTED&&blobSave(fn,buf,"application/pdf")){showInvMsg(`Downloaded ${fn}. Attach it to an email to ${FIN} and paste in the summary (Copy invoice summary).`,"ok");return;}
+  pdfFallback(buf,fn);
+}
+function showInvMsg(t,kind){IMSG=t;const el=document.getElementById("invmsg");if(!el)return;el.className="status "+(kind||"ok");el.textContent=t;el.hidden=!t;}
+async function copyText(t,okMsg){try{await navigator.clipboard.writeText(t);showInvMsg(okMsg,"ok");}catch(_){showInvMsg("Your browser blocked copying. Select the text below and copy it.","warn");const el=document.getElementById("invmsg");if(el){const ta=document.createElement("textarea");ta.readOnly=true;ta.value=t;ta.rows=8;ta.style.cssText="width:100%;margin-top:8px;font-family:ui-monospace,monospace;font-size:12px";el.appendChild(ta);ta.select();}}}
+function refreshCalc(){
+  const c=calc();
+  c.rows.forEach(r=>{const k=r.L.k;const a=document.querySelector(`[data-amt="${k}"]`);if(a)a.innerHTML=r.amt?usd0(r.amt):`<span class="muted">$0</span>`;
+    const row=document.querySelector(`[data-line="${k}"]`);if(row)row.classList.toggle("chg",r.changed);
+    const nr=document.querySelector(`[data-noterow="${k}"]`);if(nr)nr.hidden=!(r.changed||(r.L.ask&&r.n>0));
+    const inp=document.getElementById("q-"+k);if(inp&&document.activeElement!==inp&&+inp.value!==r.n)inp.value=r.n;});
+  const set=(id,h)=>{const el=document.getElementById(id);if(el)el.innerHTML=h;};
+  set("t-tot",usd(c.total));set("t-diff",diffTxt(c));set("due",longD(c.due));set("checks",checksHtml(c));
+  const no=document.getElementById("no");if(no&&document.activeElement!==no)no.value=c.no;
+  const mb=document.getElementById("mailbtn");if(mb)mb.href=mailHref(c);
+}
+function bindInv(){
+  const out=document.getElementById("out");
+  out.querySelectorAll("[data-ocd]").forEach(el=>el.oninput=()=>{IE.oc[+el.dataset.ocd].d=el.value;saveEdits();refreshCalc();});
+  out.querySelectorAll("[data-oca]").forEach(el=>el.oninput=()=>{IE.oc[+el.dataset.oca].a=el.value;saveEdits();refreshCalc();});
+  out.querySelectorAll("[data-ocdel]").forEach(b=>b.onclick=()=>{IE.oc.splice(+b.dataset.ocdel,1);saveEdits();const y=window.scrollY;render();window.scrollTo(0,y);});
+  out.querySelectorAll("[data-im]").forEach(b=>b.onclick=()=>{const all=uniqA([...invMonths(IE.id),today().slice(0,7)]).sort();const n=all[all.indexOf(IM)+(+b.dataset.im)];if(n){saveEdits();IM=n;IE=null;IMSG="";render();}});
+  out.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{const k=b.dataset.k;const cur=IE.q[k]!==undefined?IE.q[k]:expected(IE.id,IE.m).q[k];setQ(k,Math.max(0,cur+(+b.dataset.step)));});
+  out.querySelectorAll("[data-q]").forEach(el=>el.oninput=()=>{if(el.value==="")return;setQ(el.dataset.q,Math.max(0,Math.round(+el.value||0)));});
+  out.querySelectorAll("[data-q]").forEach(el=>el.onchange=()=>{const k=el.dataset.q;if(el.value===""){setQ(k,expected(IE.id,IE.m).q[k]);}el.value=IE.q[k]!==undefined?IE.q[k]:expected(IE.id,IE.m).q[k];});
+  out.querySelectorAll("[data-note]").forEach(el=>el.oninput=()=>{IE.notes[el.dataset.note]=el.value;saveEdits();refreshCalc();});
+  const ap=document.getElementById("ap-ext");if(ap)ap.onchange=()=>{IE.ap=ap.checked;saveEdits();refreshCalc();};
+  out.querySelectorAll("[data-prof]").forEach(el=>el.oninput=()=>{IP[el.dataset.prof]=el.value;saveProfile();refreshCalc();});
+  const dt=document.getElementById("dt");if(dt)dt.onchange=()=>{IE.dt=/^\d{4}-\d{2}-\d{2}$/.test(dt.value)?dt.value:"";saveEdits();refreshCalc();};
+  const no=document.getElementById("no");if(no)no.oninput=()=>{IE.no=no.value.trim()===invNo(IE.id,IE.m)?"":no.value.trim();saveEdits();refreshCalc();};
+  out.querySelectorAll("[data-act]").forEach(b=>b.onclick=e=>{const a=b.dataset.act;
+    if(a==="invreset"){IE.q={};saveEdits();const y=window.scrollY;render();window.scrollTo(0,y);}
+    else if(a==="ocadd"){IE.oc=IE.oc||[];IE.oc.push({d:"",a:""});saveEdits();const y=window.scrollY;render();window.scrollTo(0,y);const el=document.getElementById("ocd-"+(IE.oc.length-1));if(el)el.focus({preventScroll:true});}
+    else if(a==="pdf")savePdf();
+    else if(a==="sharepdf")sharePdf();
+    else if(a==="copysum"){saveEdits();copyText(summaryText(calc()),"Summary copied. Paste it into your email to "+FIN+".");}
+    else if(a==="copyaddr")copyText(FIN,"Address copied.");
+  });
+}
+function setQ(k,n){const e=expected(IE.id,IE.m).q[k];if(n===e)delete IE.q[k];else IE.q[k]=n;saveEdits();refreshCalc();}
+function tabBar(){return `<div class="viewtabs" role="tablist" aria-label="Page section"><button role="tab" data-tab="schedule" aria-selected="${TAB==="schedule"}">Schedule</button><button role="tab" data-tab="invoice" aria-selected="${TAB==="invoice"}">Monthly invoice</button></div>`;}
+function bindTabs(){document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;IMSG="";render();window.scrollTo(0,0);});}
+
+render();
+</script>
+</body>
+</html>
